@@ -5,6 +5,7 @@ import 'package:forui/forui.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/error_messages.dart';
+import '../../../../core/widgets/animated_list_item.dart';
 import '../../../../core/widgets/app_bottom_sheets.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../domain/entities/task.dart';
@@ -88,7 +89,6 @@ class _MyTasksViewState extends State<MyTasksView> {
                               title: Text('Task "${task.title}" updated'),
                               duration: const Duration(seconds: 3),
                             );
-                            context.read<TaskBloc>().add(const .loadMyTasks());
                           },
                           taskDeleted: (_) {
                             showFToast(
@@ -97,19 +97,13 @@ class _MyTasksViewState extends State<MyTasksView> {
                               title: const Text('Task deleted'),
                               duration: const Duration(seconds: 3),
                             );
-                            context.read<TaskBloc>().add(const .loadMyTasks());
                           },
                         );
                       },
                       builder: (context, state) {
                         return state.when(
-                          initial: () => const SizedBox.shrink(),
-                          loading: () => Center(
-                            child: CircularProgressIndicator(
-                              color: AppTheme.primaryYellow,
-                              backgroundColor: colors.backgroundSecondary,
-                            ),
-                          ),
+                          initial: () => const TaskListSkeleton(),
+                          loading: () => const TaskListSkeleton(),
                           tasksLoaded: (tasks) {
                             var filteredTasks = tasks;
 

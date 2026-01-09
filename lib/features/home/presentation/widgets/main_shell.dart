@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_logo.dart';
 import '../../../notifications/presentation/bloc/notification_bloc.dart';
 import '../../../projects/presentation/bloc/project_bloc.dart';
 import '../../../tasks/presentation/bloc/task_bloc.dart';
@@ -116,9 +117,19 @@ class _MobileLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    const navBarHeight = 84.0 + 8.0;
+    final totalBottomPadding = navBarHeight + bottomPadding;
+
     return Stack(
       children: [
-        Positioned.fill(child: child),
+        Positioned.fill(
+          child: Container(
+            color: context.appColors.background,
+            padding: .only(bottom: totalBottomPadding),
+            child: child,
+          ),
+        ),
         Positioned(
           left: 0,
           right: 0,
@@ -175,19 +186,7 @@ class _TabletLayout extends StatelessWidget {
                 child: Column(
                   children: [
                     const SizedBox(height: 20),
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryYellow,
-                        borderRadius: .circular(12),
-                      ),
-                      child: const Icon(
-                        FIcons.circleCheck,
-                        color: AppTheme.backgroundDark,
-                        size: 28,
-                      ),
-                    ),
+                    const AppLogo(size: 48, showText: false),
                     const SizedBox(height: 32),
                     Expanded(
                       child: Column(
@@ -274,31 +273,7 @@ class _DesktopLayout extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const .all(24),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryYellow,
-                              borderRadius: .circular(10),
-                            ),
-                            child: const Icon(
-                              FIcons.circleCheck,
-                              color: AppTheme.backgroundDark,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'TaskHub',
-                            style: context.theme.typography.xl.copyWith(
-                              fontWeight: .bold,
-                              color: colors.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
+                      child: const AppLogo(size: 40),
                     ),
                     const SizedBox(height: 8),
                     Expanded(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:taskhub/core/widgets/app_logo.dart';
 
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/pages/email_verification_page.dart';
@@ -26,13 +27,69 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _shellNavigatorKey =
     GlobalKey<NavigatorState>();
 
+CustomTransitionPage<T> _buildPageWithTransition<T>({
+  required BuildContext context,
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 300),
+    reverseTransitionDuration: const Duration(milliseconds: 250),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final fadeAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeInOut,
+      );
+      final slideAnimation = Tween<Offset>(
+        begin: const Offset(0.03, 0),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
+
+      return FadeTransition(
+        opacity: fadeAnimation,
+        child: SlideTransition(position: slideAnimation, child: child),
+      );
+    },
+  );
+}
+
+CustomTransitionPage<T> _buildSlideUpPageTransition<T>({
+  required BuildContext context,
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 350),
+    reverseTransitionDuration: const Duration(milliseconds: 300),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final slideAnimation = Tween<Offset>(
+        begin: const Offset(0, 0.05),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
+
+      return FadeTransition(
+        opacity: animation,
+        child: SlideTransition(position: slideAnimation, child: child),
+      );
+    },
+  );
+}
+
 @TypedGoRoute<SplashRoute>(path: '/splash')
 class SplashRoute extends GoRouteData with $SplashRoute {
   const SplashRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const SplashPage();
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return _buildPageWithTransition(
+      context: context,
+      state: state,
+      child: const SplashPage(),
+    );
   }
 }
 
@@ -41,8 +98,12 @@ class OnboardingRoute extends GoRouteData with $OnboardingRoute {
   const OnboardingRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const OnboardingPage();
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return _buildPageWithTransition(
+      context: context,
+      state: state,
+      child: const OnboardingPage(),
+    );
   }
 }
 
@@ -61,8 +122,12 @@ class LoginRoute extends GoRouteData with $LoginRoute {
   const LoginRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const LoginPage();
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return _buildPageWithTransition(
+      context: context,
+      state: state,
+      child: const LoginPage(),
+    );
   }
 }
 
@@ -71,8 +136,12 @@ class SignUpRoute extends GoRouteData with $SignUpRoute {
   const SignUpRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const SignUpPage();
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return _buildPageWithTransition(
+      context: context,
+      state: state,
+      child: const SignUpPage(),
+    );
   }
 }
 
@@ -81,8 +150,12 @@ class ForgotPasswordRoute extends GoRouteData with $ForgotPasswordRoute {
   const ForgotPasswordRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const ForgotPasswordPage();
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return _buildPageWithTransition(
+      context: context,
+      state: state,
+      child: const ForgotPasswordPage(),
+    );
   }
 }
 
@@ -91,8 +164,12 @@ class MagicLinkRoute extends GoRouteData with $MagicLinkRoute {
   const MagicLinkRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const MagicLinkPage();
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return _buildPageWithTransition(
+      context: context,
+      state: state,
+      child: const MagicLinkPage(),
+    );
   }
 }
 
@@ -101,8 +178,12 @@ class UpdatePasswordRoute extends GoRouteData with $UpdatePasswordRoute {
   const UpdatePasswordRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const UpdatePasswordPage();
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return _buildPageWithTransition(
+      context: context,
+      state: state,
+      child: const UpdatePasswordPage(),
+    );
   }
 }
 
@@ -113,8 +194,12 @@ class EmailVerificationRoute extends GoRouteData with $EmailVerificationRoute {
   const EmailVerificationRoute({required this.email});
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return EmailVerificationPage(email: email);
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return _buildPageWithTransition(
+      context: context,
+      state: state,
+      child: EmailVerificationPage(email: email),
+    );
   }
 }
 
@@ -135,8 +220,12 @@ class ProjectDetailRoute extends GoRouteData with $ProjectDetailRoute {
   const ProjectDetailRoute({required this.projectId});
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return ProjectDetailPage(projectId: projectId);
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return _buildSlideUpPageTransition(
+      context: context,
+      state: state,
+      child: ProjectDetailPage(projectId: projectId),
+    );
   }
 }
 
@@ -145,8 +234,12 @@ class MyTasksRoute extends GoRouteData with $MyTasksRoute {
   const MyTasksRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const MyTasksPage();
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return _buildSlideUpPageTransition(
+      context: context,
+      state: state,
+      child: const MyTasksPage(),
+    );
   }
 }
 
@@ -157,8 +250,12 @@ class TaskDetailRoute extends GoRouteData with $TaskDetailRoute {
   const TaskDetailRoute({required this.taskId});
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return TaskDetailPage(taskId: taskId);
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return _buildSlideUpPageTransition(
+      context: context,
+      state: state,
+      child: TaskDetailPage(taskId: taskId),
+    );
   }
 }
 

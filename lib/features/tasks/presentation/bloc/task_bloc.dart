@@ -17,7 +17,9 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   final TaskRepository _taskRepository;
   StreamSubscription<List<Task>>? _tasksSubscription;
 
-  TaskBloc(this._taskRepository) : super(const TaskState.initial()) {
+  List<Task> _cachedTasks = [];
+
+  TaskBloc(this._taskRepository) : super(const .initial()) {
     on<LoadProjectTasks>(_onLoadProjectTasks);
     on<LoadMyTasks>(_onLoadMyTasks);
     on<LoadTasksByDateRange>(_onLoadTasksByDateRange);
@@ -43,7 +45,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     if (result.failure != null) {
       emit(.error(result.failure!));
     } else {
-      emit(.tasksLoaded(result.tasks ?? []));
+      _cachedTasks = result.tasks ?? [];
+      emit(.tasksLoaded(_cachedTasks));
     }
   }
 
@@ -51,14 +54,17 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     LoadMyTasks event,
     Emitter<TaskState> emit,
   ) async {
-    emit(const .loading());
+    if (_cachedTasks.isEmpty) {
+      emit(const .loading());
+    }
 
     final result = await _taskRepository.getMyTasks();
 
     if (result.failure != null) {
       emit(.error(result.failure!));
     } else {
-      emit(.tasksLoaded(result.tasks ?? []));
+      _cachedTasks = result.tasks ?? [];
+      emit(.tasksLoaded(_cachedTasks));
     }
   }
 
@@ -76,7 +82,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     if (result.failure != null) {
       emit(.error(result.failure!));
     } else {
-      emit(.tasksLoaded(result.tasks ?? []));
+      _cachedTasks = result.tasks ?? [];
+      emit(.tasksLoaded(_cachedTasks));
     }
   }
 
@@ -93,7 +100,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   }
 
   Future<void> _onCreateTask(CreateTask event, Emitter<TaskState> emit) async {
-    emit(const .loading());
+    final previousTasks = List<Task>.from(_cachedTasks);
 
     final result = await _taskRepository.createTask(
       projectId: event.projectId,
@@ -109,13 +116,18 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
 
     if (result.failure != null) {
       emit(.error(result.failure!));
+      await Future.delayed(const Duration(milliseconds: 100));
+      emit(.tasksLoaded(previousTasks));
     } else if (result.task != null) {
+      _cachedTasks = [result.task!, ...previousTasks];
       emit(.taskCreated(result.task!));
+      await Future.delayed(const Duration(milliseconds: 100));
+      emit(.tasksLoaded(_cachedTasks));
     }
   }
 
   Future<void> _onUpdateTask(UpdateTask event, Emitter<TaskState> emit) async {
-    emit(const .loading());
+    final previousTasks = List<Task>.from(_cachedTasks);
 
     final result = await _taskRepository.updateTask(
       taskId: event.taskId,
@@ -131,20 +143,35 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
 
     if (result.failure != null) {
       emit(.error(result.failure!));
+      await Future.delayed(const Duration(milliseconds: 100));
+      emit(.tasksLoaded(previousTasks));
     } else if (result.task != null) {
+      _cachedTasks = _cachedTasks.map((t) {
+        return t.id == result.task!.id ? result.task! : t;
+      }).toList();
       emit(.taskUpdated(result.task!));
+      await Future.delayed(const Duration(milliseconds: 100));
+      emit(.tasksLoaded(_cachedTasks));
     }
   }
 
   Future<void> _onDeleteTask(DeleteTask event, Emitter<TaskState> emit) async {
-    emit(const .loading());
+    final previousTasks = List<Task>.from(_cachedTasks);
+
+    _cachedTasks = _cachedTasks.where((t) => t.id != event.taskId).toList();
+    emit(.tasksLoaded(_cachedTasks));
 
     final failure = await _taskRepository.deleteTask(event.taskId);
 
     if (failure != null) {
+      _cachedTasks = previousTasks;
       emit(.error(failure));
+      await Future.delayed(const Duration(milliseconds: 100));
+      emit(.tasksLoaded(_cachedTasks));
     } else {
       emit(.taskDeleted(event.taskId));
+      await Future.delayed(const Duration(milliseconds: 100));
+      emit(.tasksLoaded(_cachedTasks));
     }
   }
 
@@ -152,25 +179,53 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     CompleteTask event,
     Emitter<TaskState> emit,
   ) async {
-    emit(const .loading());
+    final previousTasks = List<Task>.from(_cachedTasks);
+
+    _cachedTasks = _cachedTasks.map((t) {
+      if (t.id == event.taskId) {
+        return t.copyWith(status: .completed, completedAt: DateTime.now());
+      }
+      return t;
+    }).toList();
+    emit(.tasksLoaded(_cachedTasks));
 
     final result = await _taskRepository.completeTask(event.taskId);
 
     if (result.failure != null) {
+      _cachedTasks = previousTasks;
       emit(.error(result.failure!));
+      await Future.delayed(const Duration(milliseconds: 100));
+      emit(.tasksLoaded(_cachedTasks));
     } else if (result.task != null) {
+      _cachedTasks = _cachedTasks.map((t) {
+        return t.id == result.task!.id ? result.task! : t;
+      }).toList();
       emit(.taskUpdated(result.task!));
     }
   }
 
   Future<void> _onReopenTask(ReopenTask event, Emitter<TaskState> emit) async {
-    emit(const .loading());
+    final previousTasks = List<Task>.from(_cachedTasks);
+
+    _cachedTasks = _cachedTasks.map((t) {
+      if (t.id == event.taskId) {
+        return t.copyWith(status: .todo, completedAt: null);
+      }
+      return t;
+    }).toList();
+    emit(.tasksLoaded(_cachedTasks));
 
     final result = await _taskRepository.reopenTask(event.taskId);
 
     if (result.failure != null) {
+      _cachedTasks = previousTasks;
       emit(.error(result.failure!));
+      await Future.delayed(const Duration(milliseconds: 100));
+      emit(.tasksLoaded(_cachedTasks));
     } else if (result.task != null) {
+      _cachedTasks = _cachedTasks.map((t) {
+        return t.id == result.task!.id ? result.task! : t;
+      }).toList();
       emit(.taskUpdated(result.task!));
     }
   }
@@ -190,7 +245,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   }
 
   void _onTasksUpdated(TasksUpdated event, Emitter<TaskState> emit) {
-    emit(.tasksLoaded(event.tasks));
+    _cachedTasks = event.tasks;
+    emit(.tasksLoaded(_cachedTasks));
   }
 
   @override

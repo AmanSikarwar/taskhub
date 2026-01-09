@@ -40,6 +40,7 @@ class ProjectsView extends StatelessWidget {
       child: Container(
         color: colors.background,
         child: SafeArea(
+          bottom: false,
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxWidth),
@@ -123,7 +124,7 @@ class ProjectsView extends StatelessWidget {
                   ),
                   Positioned(
                     right: 16,
-                    bottom: 100,
+                    bottom: 16,
                     child: CreateProjectFab(
                       onTap: () => _showCreateProjectSheet(context),
                     ),

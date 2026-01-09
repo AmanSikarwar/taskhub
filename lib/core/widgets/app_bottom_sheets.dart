@@ -3,22 +3,28 @@ import 'package:forui/forui.dart';
 
 import '../theme/app_theme.dart';
 
-/// Shows a Forui sheet from the bottom
+/// Shows a bottom sheet from the bottom
 ///
-/// This is a wrapper around showFSheet that provides consistent styling
+/// This wrapper properly handles keyboard insets for form inputs
 Future<T?> showAppBottomSheet<T>({
   required BuildContext context,
   required Widget Function(BuildContext) builder,
   bool isDismissible = true,
   bool enableDrag = true,
+  bool isScrollControlled = true,
 }) {
-  return showFSheet<T>(
+  final colors = context.appColors;
+
+  return showModalBottomSheet<T>(
     context: context,
-    side: .btt,
-    mainAxisMaxRatio: 0.9,
+    isScrollControlled: isScrollControlled,
+    isDismissible: isDismissible,
+    enableDrag: enableDrag,
+    backgroundColor: colors.backgroundCard,
+    shape: const RoundedRectangleBorder(
+      borderRadius: .vertical(top: .circular(20)),
+    ),
     builder: builder,
-    barrierDismissible: isDismissible,
-    useSafeArea: true,
   );
 }
 
@@ -83,78 +89,80 @@ Future<bool?> showConfirmationBottomSheet({
 
   return showAppBottomSheet<bool>(
     context: context,
-    builder: (sheetContext) => Container(
-      color: colors.background,
-      padding: const .all(24),
-      child: Column(
-        mainAxisSize: .min,
-        children: [
-          if (icon != null) ...[
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: AppTheme.errorRed.withValues(alpha: 0.2),
-                shape: .circle,
-              ),
-              child: Icon(icon, color: AppTheme.errorRed, size: 32),
-            ),
-            const SizedBox(height: 20),
-          ],
-          Text(
-            title,
-            style: context.theme.typography.lg.copyWith(
-              fontWeight: .bold,
-              color: colors.textPrimary,
-            ),
-            textAlign: .center,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            style: context.theme.typography.sm.copyWith(
-              color: colors.textSecondary,
-            ),
-            textAlign: .center,
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: FButton(
-                  onPress: () => Navigator.pop(sheetContext, false),
-                  style: FButtonStyle.outline(),
-                  child: Text(cancelLabel),
+    isScrollControlled: false,
+    builder: (sheetContext) => SafeArea(
+      child: Padding(
+        padding: const .all(24),
+        child: Column(
+          mainAxisSize: .min,
+          children: [
+            if (icon != null) ...[
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: AppTheme.errorRed.withValues(alpha: 0.2),
+                  shape: .circle,
                 ),
+                child: Icon(icon, color: AppTheme.errorRed, size: 32),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: FTappable(
-                  onPress: () {
-                    onConfirm?.call();
-                    Navigator.pop(sheetContext, true);
-                  },
-                  child: Container(
-                    padding: const .symmetric(vertical: 14),
-                    decoration: BoxDecoration(
-                      color: AppTheme.errorRed,
-                      borderRadius: .circular(12),
-                    ),
-                    child: Center(
-                      child: Text(
-                        confirmLabel,
-                        style: context.theme.typography.sm.copyWith(
-                          fontWeight: .w600,
-                          color: Colors.white,
+              const SizedBox(height: 20),
+            ],
+            Text(
+              title,
+              style: context.theme.typography.lg.copyWith(
+                fontWeight: .bold,
+                color: colors.textPrimary,
+              ),
+              textAlign: .center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              style: context.theme.typography.sm.copyWith(
+                color: colors.textSecondary,
+              ),
+              textAlign: .center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: FButton(
+                    onPress: () => Navigator.pop(sheetContext, false),
+                    style: FButtonStyle.outline(),
+                    child: Text(cancelLabel),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FTappable(
+                    onPress: () {
+                      onConfirm?.call();
+                      Navigator.pop(sheetContext, true);
+                    },
+                    child: Container(
+                      padding: const .symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: AppTheme.errorRed,
+                        borderRadius: .circular(12),
+                      ),
+                      child: Center(
+                        child: Text(
+                          confirmLabel,
+                          style: context.theme.typography.sm.copyWith(
+                            fontWeight: .w600,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     ),
   );
@@ -192,9 +200,9 @@ Future<T?> showActionMenuBottomSheet<T>({
 
   return showAppBottomSheet<T>(
     context: context,
+    isScrollControlled: false,
     builder: (sheetContext) => SafeArea(
-      child: Container(
-        color: colors.background,
+      child: Padding(
         padding: const .symmetric(vertical: 8),
         child: Column(
           mainAxisSize: .min,
@@ -245,22 +253,37 @@ class FormBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Container(
-      color: colors.background,
-      padding: .only(
-        left: 24,
-        right: 24,
-        top: 24,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      decoration: BoxDecoration(
+        color: colors.backgroundCard,
+        borderRadius: const .vertical(top: Radius.circular(20)),
       ),
-      child: SingleChildScrollView(
+      child: Padding(
+        padding: .only(
+          left: 24,
+          right: 24,
+          top: 12,
+          bottom: bottomPadding > 0 ? bottomPadding : 24,
+        ),
         child: Column(
           mainAxisSize: .min,
-          crossAxisAlignment: .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const .only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: colors.border,
+                  borderRadius: .circular(2),
+                ),
+              ),
+            ),
             Row(
-              mainAxisAlignment: .spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   title,
@@ -281,7 +304,7 @@ class FormBottomSheet extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             ...fields,
             const SizedBox(height: 24),
             Row(

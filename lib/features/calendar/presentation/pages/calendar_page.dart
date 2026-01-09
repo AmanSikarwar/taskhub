@@ -36,6 +36,7 @@ class CalendarView extends StatelessWidget {
       child: Container(
         color: colors.background,
         child: SafeArea(
+          bottom: false,
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxWidth),

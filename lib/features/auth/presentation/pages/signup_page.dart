@@ -5,6 +5,7 @@ import 'package:forui/forui.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/error_messages.dart';
+import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../bloc/auth_bloc.dart';
 

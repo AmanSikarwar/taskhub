@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 
 import '../theme/app_theme.dart';
+import 'animated_list_item.dart';
 
 /// Consistent page header for all app pages
 ///
@@ -134,48 +135,7 @@ class AppCard extends StatelessWidget {
 
     if (onTap == null) return card;
 
-    return FTappable(onPress: onTap, child: card);
-  }
-}
-
-class AppLogo extends StatelessWidget {
-  final double size;
-  final bool showText;
-
-  const AppLogo({super.key, this.size = 40, this.showText = true});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return Row(
-      mainAxisSize: .min,
-      children: [
-        Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: AppTheme.primaryYellow,
-            borderRadius: .circular(size * 0.25),
-          ),
-          child: Icon(
-            FIcons.circleCheck,
-            color: AppTheme.backgroundDark,
-            size: size * 0.6,
-          ),
-        ),
-        if (showText) ...[
-          const SizedBox(width: 12),
-          Text(
-            'TaskHub',
-            style: context.theme.typography.xl2.copyWith(
-              fontWeight: .bold,
-              color: colors.textPrimary,
-            ),
-          ),
-        ],
-      ],
-    );
+    return TapScaleAnimation(onTap: onTap, child: card);
   }
 }
 
@@ -199,20 +159,34 @@ class ProjectProgressCircle extends StatelessWidget {
       width: size,
       height: size,
       child: Stack(
-        alignment: .center,
+        alignment: Alignment.center,
         children: [
-          CircularProgressIndicator(
-            value: progress,
-            strokeWidth: 3,
-            backgroundColor: colors.backgroundSecondary,
-            valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: progress),
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, child) {
+              return CircularProgressIndicator(
+                value: value,
+                strokeWidth: 3,
+                backgroundColor: colors.backgroundSecondary,
+                valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+              );
+            },
           ),
-          Text(
-            '${(progress * 100).toInt()}%',
-            style: context.theme.typography.xs.copyWith(
-              fontWeight: .bold,
-              color: colors.textPrimary,
-            ),
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: progress * 100),
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, child) {
+              return Text(
+                '${value.toInt()}%',
+                style: context.theme.typography.xs.copyWith(
+                  fontWeight: .bold,
+                  color: colors.textPrimary,
+                ),
+              );
+            },
           ),
         ],
       ),

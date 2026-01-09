@@ -7,7 +7,7 @@ import 'package:forui/forui.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/widgets/app_widgets.dart';
+import '../../../../core/widgets/app_logo.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../data/services/onboarding_service.dart';
 

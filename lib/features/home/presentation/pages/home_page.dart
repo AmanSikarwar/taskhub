@@ -56,6 +56,7 @@ class _HomeViewState extends State<HomeView> {
       child: Container(
         color: colors.background,
         child: SafeArea(
+          bottom: false,
           child: BlocBuilder<AuthBloc, AuthState>(
             builder: (context, authState) {
               final user = authState.whenOrNull(authenticated: (user) => user);
