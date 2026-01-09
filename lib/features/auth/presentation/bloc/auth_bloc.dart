@@ -32,6 +32,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<HandleDeepLinkTokenHash>(_onHandleDeepLinkTokenHash);
     on<HandleDeepLinkSession>(_onHandleDeepLinkSession);
     on<AuthStateChanged>(_onAuthStateChanged);
+    on<UpdateProfile>(_onUpdateProfile);
 
     _authStateSubscription = _authRepository.authStateChanges.listen(
       (event) => add(
@@ -281,5 +282,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> close() {
     _authStateSubscription?.cancel();
     return super.close();
+  }
+
+  Future<void> _onUpdateProfile(
+    UpdateProfile event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const .loading());
+
+    final result = await _authRepository.updateProfile(
+      displayName: event.displayName,
+      avatarUrl: event.avatarUrl,
+    );
+
+    if (result.failure != null) {
+      emit(.error(result.failure!));
+    } else if (result.user != null) {
+      emit(.profileUpdated(result.user!));
+    }
   }
 }

@@ -17,6 +17,8 @@ sealed class AuthState with _$AuthState {
 
   const factory AuthState.passwordUpdated() = PasswordUpdated;
 
+  const factory AuthState.profileUpdated(AppUser user) = ProfileUpdated;
+
   const factory AuthState.passwordResetReady(AppUser user) = PasswordResetReady;
 
   const factory AuthState.error(AuthFailure failure) = AuthError;

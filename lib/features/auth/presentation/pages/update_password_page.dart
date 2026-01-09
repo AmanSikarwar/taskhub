@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:forui/forui.dart';
 
 import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/error_messages.dart';
+import '../../../../core/widgets/app_widgets.dart';
 import '../bloc/auth_bloc.dart';
 
 class UpdatePasswordPage extends StatefulWidget {
@@ -12,7 +16,6 @@ class UpdatePasswordPage extends StatefulWidget {
 }
 
 class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
-  final _formKey = GlobalKey<FormState>();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
@@ -26,166 +29,180 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
   }
 
   void _onUpdatePassword() {
-    if (_formKey.currentState?.validate() ?? false) {
-      context.read<AuthBloc>().add(
-        .updatePassword(newPassword: _passwordController.text),
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (password.isEmpty) {
+      showFToast(
+        context: context,
+        icon: const Icon(FIcons.triangleAlert),
+        title: const Text('Please enter a password'),
+        duration: const Duration(seconds: 3),
       );
+      return;
     }
+    if (password.length < 6) {
+      showFToast(
+        context: context,
+        icon: const Icon(FIcons.triangleAlert),
+        title: const Text('Password must be at least 6 characters'),
+        duration: const Duration(seconds: 3),
+      );
+      return;
+    }
+    if (password != confirmPassword) {
+      showFToast(
+        context: context,
+        icon: const Icon(FIcons.triangleAlert),
+        title: const Text('Passwords do not match'),
+        duration: const Duration(seconds: 3),
+      );
+      return;
+    }
+
+    context.read<AuthBloc>().add(.updatePassword(newPassword: password));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text('Update Password'),
-      ),
-      body: BlocListener<AuthBloc, AuthState>(
+    final colors = context.appColors;
+
+    return FScaffold(
+      childPad: false,
+      child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is PasswordUpdated) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Password updated successfully!'),
-                backgroundColor: Colors.green,
-              ),
-            );
-            const HomeRoute().go(context);
-          } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(_getErrorMessage(state.failure)),
-                backgroundColor: Theme.of(context).colorScheme.error,
-              ),
-            );
-          }
+          state.whenOrNull(
+            passwordUpdated: () {
+              showFToast(
+                context: context,
+                icon: const Icon(FIcons.check),
+                title: const Text('Password updated successfully!'),
+                duration: const Duration(seconds: 3),
+              );
+              const HomeRoute().go(context);
+            },
+            error: (failure) {
+              showFToast(
+                context: context,
+                icon: const Icon(FIcons.triangleAlert),
+                title: Text(ErrorMessages.fromAuthFailure(failure)),
+                duration: const Duration(seconds: 4),
+              );
+            },
+          );
         },
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: .stretch,
-                children: [
-                  Icon(
-                    Icons.lock_outlined,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Enter your new password below.',
-                    style: Theme.of(context).textTheme.bodyLarge,
-                    textAlign: .center,
-                  ),
-                  const SizedBox(height: 32),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    textInputAction: .next,
-                    decoration: InputDecoration(
-                      labelText: 'New Password',
-                      prefixIcon: const Icon(Icons.lock_outlined),
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
+        child: Container(
+          color: colors.background,
+          child: SafeArea(
+            child: Column(
+              children: [
+                const AppPageHeader(
+                  title: 'Update Password',
+                  showBackButton: true,
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const .all(24),
+                    child: Column(
+                      crossAxisAlignment: .stretch,
+                      children: [
+                        const Icon(
+                          FIcons.lock,
+                          size: 64,
+                          color: AppTheme.primaryYellow,
                         ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                      ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Enter your new password below.',
+                          style: context.theme.typography.base.copyWith(
+                            color: colors.textSecondary,
+                          ),
+                          textAlign: .center,
+                        ),
+                        const SizedBox(height: 32),
+                        const FormLabel('New Password'),
+                        const SizedBox(height: 8),
+                        FTextField(
+                          control: FTextFieldControl.managed(
+                            controller: _passwordController,
+                          ),
+                          hint: 'Enter your new password',
+                          obscureText: _obscurePassword,
+                          prefixBuilder: (context, style, states) => Icon(
+                            FIcons.lock,
+                            color: colors.textSecondary,
+                            size: 20,
+                          ),
+                          suffixBuilder: (context, style, states) => FTappable(
+                            onPress: () => setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            ),
+                            child: Icon(
+                              _obscurePassword ? FIcons.eyeOff : FIcons.eye,
+                              color: colors.textSecondary,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const FormLabel('Confirm New Password'),
+                        const SizedBox(height: 8),
+                        FTextField(
+                          control: FTextFieldControl.managed(
+                            controller: _confirmPasswordController,
+                          ),
+                          hint: 'Confirm your new password',
+                          obscureText: _obscureConfirmPassword,
+                          prefixBuilder: (context, style, states) => Icon(
+                            FIcons.lock,
+                            color: colors.textSecondary,
+                            size: 20,
+                          ),
+                          suffixBuilder: (context, style, states) => FTappable(
+                            onPress: () => setState(
+                              () => _obscureConfirmPassword =
+                                  !_obscureConfirmPassword,
+                            ),
+                            child: Icon(
+                              _obscureConfirmPassword
+                                  ? FIcons.eyeOff
+                                  : FIcons.eye,
+                              color: colors.textSecondary,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        BlocBuilder<AuthBloc, AuthState>(
+                          builder: (context, state) {
+                            final isLoading = state.maybeWhen(
+                              loading: () => true,
+                              orElse: () => false,
+                            );
+                            return FButton(
+                              onPress: isLoading ? null : _onUpdatePassword,
+                              child: isLoading
+                                  ? SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: colors.background,
+                                      ),
+                                    )
+                                  : const Text('Update Password'),
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    obscureText: _obscureConfirmPassword,
-                    textInputAction: .done,
-                    onFieldSubmitted: (_) => _onUpdatePassword(),
-                    decoration: InputDecoration(
-                      labelText: 'Confirm New Password',
-                      prefixIcon: const Icon(Icons.lock_outlined),
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureConfirmPassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureConfirmPassword = !_obscureConfirmPassword;
-                          });
-                        },
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please confirm your password';
-                      }
-                      if (value != _passwordController.text) {
-                        return 'Passwords do not match';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      final isLoading = state is AuthLoading;
-                      return FilledButton(
-                        onPressed: isLoading ? null : _onUpdatePassword,
-                        style: FilledButton.styleFrom(
-                          padding: const .symmetric(vertical: 16),
-                        ),
-                        child: isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Text('Update Password'),
-                      );
-                    },
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       ),
-    );
-  }
-
-  String _getErrorMessage(dynamic failure) {
-    return failure.when(
-      serverError: (message) => message,
-      emailAlreadyInUse: () => 'This email is already registered',
-      invalidEmailAndPasswordCombination: () => 'Invalid email or password',
-      weakPassword: () => 'Password is too weak',
-      userNotFound: () => 'No account found with this email',
-      emailNotVerified: () => 'Please verify your email first',
-      tooManyRequests: () => 'Too many attempts. Please try again later',
-      networkError: () => 'Network error. Please check your connection',
-      cancelledByUser: () => 'Operation cancelled',
-      unknown: (message) => message,
     );
   }
 }

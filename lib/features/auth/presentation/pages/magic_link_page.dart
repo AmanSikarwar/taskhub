@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:forui/forui.dart';
 
 import '../../../../core/router/app_router.dart';
-import '../../domain/entities/auth_failure.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/error_messages.dart';
+import '../../../../core/widgets/app_widgets.dart';
 import '../bloc/auth_bloc.dart';
 
 class MagicLinkPage extends StatefulWidget {
@@ -13,7 +16,6 @@ class MagicLinkPage extends StatefulWidget {
 }
 
 class _MagicLinkPageState extends State<MagicLinkPage> {
-  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
 
   @override
@@ -23,140 +25,152 @@ class _MagicLinkPageState extends State<MagicLinkPage> {
   }
 
   void _onSendMagicLink() {
-    if (_formKey.currentState?.validate() ?? false) {
-      context.read<AuthBloc>().add(
-        .signInWithMagicLink(email: _emailController.text.trim()),
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      showFToast(
+        context: context,
+        icon: const Icon(FIcons.triangleAlert),
+        title: const Text('Please enter your email'),
+        duration: const Duration(seconds: 3),
       );
+      return;
     }
-  }
-
-  String _getErrorMessage(AuthFailure failure) {
-    return failure.when(
-      serverError: (message) => message,
-      emailAlreadyInUse: () => 'This email is already registered',
-      invalidEmailAndPasswordCombination: () => 'Invalid email',
-      weakPassword: () => 'Password is too weak',
-      userNotFound: () => 'No user found with this email',
-      emailNotVerified: () => 'Please verify your email first',
-      tooManyRequests: () => 'Too many attempts. Please try again later',
-      networkError: () => 'Network error. Please check your connection',
-      cancelledByUser: () => 'Operation was cancelled',
-      unknown: (message) => message,
-    );
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+      showFToast(
+        context: context,
+        icon: const Icon(FIcons.triangleAlert),
+        title: const Text('Please enter a valid email'),
+        duration: const Duration(seconds: 3),
+      );
+      return;
+    }
+    context.read<AuthBloc>().add(.signInWithMagicLink(email: email));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
-      body: BlocListener<AuthBloc, AuthState>(
+    final colors = context.appColors;
+
+    return FScaffold(
+      childPad: false,
+      child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(_getErrorMessage(state.failure)),
-                backgroundColor: Theme.of(context).colorScheme.error,
-              ),
-            );
-          } else if (state is EmailVerificationRequired) {
-            EmailVerificationRoute(email: state.email).go(context);
-          }
+          state.whenOrNull(
+            error: (failure) {
+              showFToast(
+                context: context,
+                icon: const Icon(FIcons.triangleAlert),
+                title: Text(ErrorMessages.fromAuthFailure(failure)),
+                duration: const Duration(seconds: 4),
+              );
+            },
+            emailVerificationRequired: (email) {
+              EmailVerificationRoute(email: email).go(context);
+            },
+          );
         },
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: .center,
-                  crossAxisAlignment: .stretch,
-                  children: [
-                    Icon(
-                      Icons.link,
-                      size: 80,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Passwordless Sign In',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.headlineMedium?.copyWith(fontWeight: .bold),
-                      textAlign: .center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Enter your email and we\'ll send you a magic link to sign in',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      textAlign: .center,
-                    ),
-                    const SizedBox(height: 48),
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: .emailAddress,
-                      textInputAction: .done,
-                      onFieldSubmitted: (_) => _onSendMagicLink(),
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.email_outlined),
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!RegExp(
-                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                        ).hasMatch(value)) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                    BlocBuilder<AuthBloc, AuthState>(
-                      builder: (context, state) {
-                        final isLoading = state is AuthLoading;
-                        return FilledButton.icon(
-                          onPressed: isLoading ? null : _onSendMagicLink,
-                          style: FilledButton.styleFrom(
-                            padding: const .symmetric(vertical: 16),
-                          ),
-                          icon: isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(Icons.send),
-                          label: const Text('Send Magic Link'),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 32),
-                    Row(
+        child: Container(
+          color: colors.background,
+          child: SafeArea(
+            child: Column(
+              children: [
+                const AppPageHeader(title: 'Magic Link', showBackButton: true),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const .all(24),
+                    child: Column(
                       mainAxisAlignment: .center,
+                      crossAxisAlignment: .stretch,
                       children: [
-                        Text(
-                          'Prefer password? ',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                        const Icon(
+                          FIcons.wand,
+                          size: 80,
+                          color: AppTheme.primaryYellow,
                         ),
-                        TextButton(
-                          onPressed: () {
-                            const LoginRoute().go(context);
+                        const SizedBox(height: 16),
+                        Text(
+                          'Passwordless Sign In',
+                          style: context.theme.typography.xl2.copyWith(
+                            fontWeight: .bold,
+                            color: colors.textPrimary,
+                          ),
+                          textAlign: .center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Enter your email and we'll send you a magic link to sign in",
+                          style: context.theme.typography.base.copyWith(
+                            color: colors.textSecondary,
+                          ),
+                          textAlign: .center,
+                        ),
+                        const SizedBox(height: 48),
+                        const FormLabel('Email Address'),
+                        const SizedBox(height: 8),
+                        FTextField(
+                          control: FTextFieldControl.managed(
+                            controller: _emailController,
+                          ),
+                          hint: 'Enter your email',
+                          keyboardType: TextInputType.emailAddress,
+                          prefixBuilder: (context, style, states) => Icon(
+                            FIcons.mail,
+                            color: colors.textSecondary,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        BlocBuilder<AuthBloc, AuthState>(
+                          builder: (context, state) {
+                            final isLoading = state.maybeWhen(
+                              loading: () => true,
+                              orElse: () => false,
+                            );
+                            return FButton(
+                              onPress: isLoading ? null : _onSendMagicLink,
+                              prefix: isLoading
+                                  ? null
+                                  : const Icon(FIcons.send, size: 16),
+                              child: isLoading
+                                  ? SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: colors.background,
+                                      ),
+                                    )
+                                  : const Text('Send Magic Link'),
+                            );
                           },
-                          child: const Text('Sign In'),
+                        ),
+                        const SizedBox(height: 32),
+                        Row(
+                          mainAxisAlignment: .center,
+                          children: [
+                            Text(
+                              'Prefer password? ',
+                              style: context.theme.typography.sm.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            FTappable(
+                              onPress: () => const LoginRoute().go(context),
+                              child: Text(
+                                'Sign In',
+                                style: context.theme.typography.sm.copyWith(
+                                  color: AppTheme.primaryYellow,
+                                  fontWeight: .w600,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ),

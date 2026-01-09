@@ -51,4 +51,9 @@ class AuthEvent with _$AuthEvent {
     AppUser? user,
     required String eventType,
   }) = AuthStateChanged;
+
+  const factory AuthEvent.updateProfile({
+    String? displayName,
+    String? avatarUrl,
+  }) = UpdateProfile;
 }

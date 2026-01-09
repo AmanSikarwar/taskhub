@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:forui/forui.dart';
 
+import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/error_messages.dart';
+import '../../../../core/widgets/app_widgets.dart';
 import '../bloc/auth_bloc.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -14,20 +19,27 @@ class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
+  bool _agreedToTerms = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
   void _onSignUp() {
     if (_formKey.currentState?.validate() ?? false) {
+      if (!_agreedToTerms) {
+        showFToast(
+          context: context,
+          icon: const Icon(FIcons.triangleAlert),
+          title: const Text('Please agree to the Privacy Policy and Terms'),
+          duration: const Duration(seconds: 4),
+        );
+        return;
+      }
       context.read<AuthBloc>().add(
         .signUpWithEmailAndPassword(
           email: _emailController.text.trim(),
@@ -38,198 +50,221 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   void _onGoogleSignIn() {
-    context.read<AuthBloc>().add(const AuthEvent.signInWithGoogle());
+    context.read<AuthBloc>().add(const .signInWithGoogle());
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const .all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: .center,
-                crossAxisAlignment: .stretch,
-                children: [
-                  Text(
-                    'Create Account',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.headlineMedium?.copyWith(fontWeight: .bold),
-                    textAlign: .center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Sign up to get started',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    textAlign: .center,
-                  ),
-                  const SizedBox(height: 48),
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: .emailAddress,
-                    textInputAction: .next,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      prefixIcon: Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!RegExp(
-                        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                      ).hasMatch(value)) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    textInputAction: .next,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      prefixIcon: const Icon(Icons.lock_outlined),
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isDesktop = AppTheme.isDesktop(screenWidth);
+    final contentWidth = isDesktop ? 400.0 : double.infinity;
+    final colors = context.appColors;
+
+    return FScaffold(
+      childPad: false,
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          state.whenOrNull(
+            error: (failure) {
+              showFToast(
+                context: context,
+                icon: const Icon(FIcons.triangleAlert),
+                title: Text(ErrorMessages.fromAuthFailure(failure)),
+                duration: const Duration(seconds: 4),
+              );
+            },
+            emailVerificationRequired: (email) {
+              EmailVerificationRoute(email: email).push(context);
+            },
+          );
+        },
+        child: Container(
+          color: colors.background,
+          child: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const .all(24),
+                child: Container(
+                  width: contentWidth,
+                  constraints: const BoxConstraints(maxWidth: 400),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: .center,
+                      crossAxisAlignment: .stretch,
+                      children: [
+                        const Center(child: AppLogo(size: 48)),
+                        const SizedBox(height: 48),
+                        Text(
+                          'Create your account',
+                          style: context.theme.typography.xl2.copyWith(
+                            fontWeight: .bold,
+                            color: colors.textPrimary,
+                          ),
+                          textAlign: .center,
                         ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    obscureText: _obscureConfirmPassword,
-                    textInputAction: .done,
-                    onFieldSubmitted: (_) => _onSignUp(),
-                    decoration: InputDecoration(
-                      labelText: 'Confirm Password',
-                      prefixIcon: const Icon(Icons.lock_outlined),
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureConfirmPassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
+                        const SizedBox(height: 32),
+                        const FormLabel('Email Address'),
+                        const SizedBox(height: 8),
+                        FTextField(
+                          control: FTextFieldControl.managed(
+                            controller: _emailController,
+                          ),
+                          hint: 'Enter your email',
+                          keyboardType: TextInputType.emailAddress,
+                          prefixBuilder: (context, style, states) => Icon(
+                            FIcons.mail,
+                            color: colors.textSecondary,
+                            size: 20,
+                          ),
                         ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureConfirmPassword = !_obscureConfirmPassword;
-                          });
-                        },
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please confirm your password';
-                      }
-                      if (value != _passwordController.text) {
-                        return 'Passwords do not match';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      final isLoading = state is AuthLoading;
-                      return FilledButton(
-                        onPressed: isLoading ? null : _onSignUp,
-                        style: FilledButton.styleFrom(
-                          padding: const .symmetric(vertical: 16),
+                        const SizedBox(height: 20),
+                        const FormLabel('Password'),
+                        const SizedBox(height: 8),
+                        FTextField(
+                          control: FTextFieldControl.managed(
+                            controller: _passwordController,
+                          ),
+                          hint: 'Enter your password',
+                          obscureText: _obscurePassword,
+                          prefixBuilder: (context, style, states) => Icon(
+                            FIcons.lock,
+                            color: colors.textSecondary,
+                            size: 20,
+                          ),
+                          suffixBuilder: (context, style, states) => FTappable(
+                            onPress: () => setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            ),
+                            child: Icon(
+                              _obscurePassword ? FIcons.eyeOff : FIcons.eye,
+                              color: colors.textSecondary,
+                              size: 20,
+                            ),
+                          ),
                         ),
-                        child: isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
+                        const SizedBox(height: 20),
+                        Row(
+                          crossAxisAlignment: .start,
+                          children: [
+                            FCheckbox(
+                              value: _agreedToTerms,
+                              onChange: (value) =>
+                                  setState(() => _agreedToTerms = value),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text.rich(
+                                TextSpan(
+                                  text: 'I have read & agreed to TaskHub ',
+                                  style: context.theme.typography.sm.copyWith(
+                                    color: colors.textSecondary,
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                      text: 'Privacy Policy',
+                                      style: context.theme.typography.sm
+                                          .copyWith(
+                                            color: AppTheme.primaryYellow,
+                                          ),
+                                    ),
+                                    TextSpan(
+                                      text: ', ',
+                                      style: context.theme.typography.sm
+                                          .copyWith(
+                                            color: colors.textSecondary,
+                                          ),
+                                    ),
+                                    TextSpan(
+                                      text: 'Terms & Condition',
+                                      style: context.theme.typography.sm
+                                          .copyWith(
+                                            color: AppTheme.primaryYellow,
+                                          ),
+                                    ),
+                                  ],
                                 ),
-                              )
-                            : const Text('Sign Up'),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      const Expanded(child: Divider()),
-                      Padding(
-                        padding: const .symmetric(horizontal: 16),
-                        child: Text(
-                          'OR',
-                          style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const Expanded(child: Divider()),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      final isLoading = state is AuthLoading;
-                      return OutlinedButton.icon(
-                        onPressed: isLoading ? null : _onGoogleSignIn,
-                        style: OutlinedButton.styleFrom(
-                          padding: const .symmetric(vertical: 16),
-                        ),
-                        icon: Image.network(
-                          'https://www.google.com/favicon.ico',
-                          height: 20,
-                          width: 20,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.g_mobiledata, size: 24);
+                        const SizedBox(height: 32),
+                        BlocBuilder<AuthBloc, AuthState>(
+                          builder: (context, state) {
+                            final isLoading = state.maybeWhen(
+                              loading: () => true,
+                              orElse: () => false,
+                            );
+                            return FButton(
+                              onPress: isLoading ? null : _onSignUp,
+                              child: isLoading
+                                  ? SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: colors.background,
+                                      ),
+                                    )
+                                  : const Text('Sign Up'),
+                            );
                           },
                         ),
-                        label: const Text('Continue with Google'),
-                      );
-                    },
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            const Expanded(child: FDivider()),
+                            Padding(
+                              padding: const .symmetric(horizontal: 16),
+                              child: Text(
+                                'Or continue with',
+                                style: context.theme.typography.sm.copyWith(
+                                  color: colors.textSecondary,
+                                ),
+                              ),
+                            ),
+                            const Expanded(child: FDivider()),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        FButton(
+                          onPress: _onGoogleSignIn,
+                          style: FButtonStyle.outline(),
+                          prefix: Image.network(
+                            'https://www.google.com/favicon.ico',
+                            width: 20,
+                            height: 20,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(FIcons.globe, size: 20),
+                          ),
+                          child: const Text('Google'),
+                        ),
+                        const SizedBox(height: 32),
+                        Row(
+                          mainAxisAlignment: .center,
+                          children: [
+                            Text(
+                              'Already have an account? ',
+                              style: context.theme.typography.sm.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            FTappable(
+                              onPress: () => const LoginRoute().go(context),
+                              child: Text(
+                                'Log In',
+                                style: context.theme.typography.sm.copyWith(
+                                  color: AppTheme.primaryYellow,
+                                  fontWeight: .w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 32),
-                  Row(
-                    mainAxisAlignment: .center,
-                    children: [
-                      Text(
-                        'Already have an account? ',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Sign In'),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
           ),

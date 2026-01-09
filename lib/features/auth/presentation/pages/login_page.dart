@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:forui/forui.dart';
 
 import '../../../../core/router/app_router.dart';
-import '../../domain/entities/auth_failure.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/error_messages.dart';
+import '../../../../core/widgets/app_widgets.dart';
 import '../bloc/auth_bloc.dart';
 
 class LoginPage extends StatefulWidget {
@@ -25,8 +28,8 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _onSignIn() {
-    if (_formKey.currentState?.validate() ?? false) {
+  void _onLogin() {
+    if (_formKey.currentState!.validate()) {
       context.read<AuthBloc>().add(
         .signInWithEmailAndPassword(
           email: _emailController.text.trim(),
@@ -40,212 +43,194 @@ class _LoginPageState extends State<LoginPage> {
     context.read<AuthBloc>().add(const .signInWithGoogle());
   }
 
-  String _getErrorMessage(AuthFailure failure) {
-    return failure.when(
-      serverError: (message) => message,
-      emailAlreadyInUse: () => 'This email is already registered',
-      invalidEmailAndPasswordCombination: () => 'Invalid email or password',
-      weakPassword: () => 'Password is too weak',
-      userNotFound: () => 'No user found with this email',
-      emailNotVerified: () => 'Please verify your email first',
-      tooManyRequests: () => 'Too many attempts. Please try again later',
-      networkError: () => 'Network error. Please check your connection',
-      cancelledByUser: () => 'Sign in was cancelled',
-      unknown: (message) => message,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocListener<AuthBloc, AuthState>(
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isDesktop = AppTheme.isDesktop(screenWidth);
+    final contentWidth = isDesktop ? 400.0 : double.infinity;
+    final colors = context.appColors;
+
+    return FScaffold(
+      childPad: false,
+      child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(_getErrorMessage(state.failure)),
-                backgroundColor: Theme.of(context).colorScheme.error,
-              ),
-            );
-          } else if (state is EmailVerificationRequired) {
-            EmailVerificationRoute(email: state.email).push(context);
-          }
+          state.whenOrNull(
+            error: (failure) {
+              showFToast(
+                context: context,
+                icon: const Icon(FIcons.triangleAlert),
+                title: Text(ErrorMessages.fromAuthFailure(failure)),
+                duration: const Duration(seconds: 4),
+              );
+            },
+            emailVerificationRequired: (email) {
+              EmailVerificationRoute(email: email).push(context);
+            },
+          );
         },
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const .all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: .center,
-                  crossAxisAlignment: .stretch,
-                  children: [
-                    Icon(
-                      Icons.task_alt,
-                      size: 80,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Welcome to TaskHub',
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                      textAlign: .center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Sign in to continue',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      textAlign: .center,
-                    ),
-                    const SizedBox(height: 48),
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: .emailAddress,
-                      textInputAction: .next,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.email_outlined),
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!RegExp(
-                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                        ).hasMatch(value)) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      textInputAction: .done,
-                      onFieldSubmitted: (_) => _onSignIn(),
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: const Icon(Icons.lock_outlined),
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: .centerRight,
-                      child: TextButton(
-                        onPressed: () {
-                          const ForgotPasswordRoute().push(context);
-                        },
-                        child: const Text('Forgot Password?'),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    BlocBuilder<AuthBloc, AuthState>(
-                      builder: (context, state) {
-                        final isLoading = state is AuthLoading;
-                        return FilledButton(
-                          onPressed: isLoading ? null : _onSignIn,
-                          style: FilledButton.styleFrom(
-                            padding: const .symmetric(vertical: 16),
-                          ),
-                          child: isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Text('Sign In'),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        const Expanded(child: Divider()),
-                        Padding(
-                          padding: const .symmetric(horizontal: 16),
-                          child: Text(
-                            'OR',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ),
-                        const Expanded(child: Divider()),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    BlocBuilder<AuthBloc, AuthState>(
-                      builder: (context, state) {
-                        final isLoading = state is AuthLoading;
-                        return OutlinedButton.icon(
-                          onPressed: isLoading ? null : _onGoogleSignIn,
-                          style: OutlinedButton.styleFrom(
-                            padding: const .symmetric(vertical: 16),
-                          ),
-                          icon: Image.network(
-                            'https://www.google.com/favicon.ico',
-                            height: 20,
-                            width: 20,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(Icons.g_mobiledata, size: 24);
-                            },
-                          ),
-                          label: const Text('Continue with Google'),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    Center(
-                      child: TextButton.icon(
-                        onPressed: () {
-                          const MagicLinkRoute().push(context);
-                        },
-                        icon: const Icon(Icons.link),
-                        label: const Text('Sign in with Magic Link'),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
+        child: Container(
+          color: colors.background,
+          child: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const .all(24),
+                child: Container(
+                  width: contentWidth,
+                  constraints: const BoxConstraints(maxWidth: 400),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
                       mainAxisAlignment: .center,
+                      crossAxisAlignment: .stretch,
                       children: [
+                        const Center(child: AppLogo(size: 48)),
+                        const SizedBox(height: 48),
+
                         Text(
-                          "Don't have an account? ",
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          'Welcome Back!',
+                          style: context.theme.typography.xl2.copyWith(
+                            fontWeight: .bold,
+                            color: colors.textPrimary,
+                          ),
+                          textAlign: .center,
                         ),
-                        TextButton(
-                          onPressed: () {
-                            const SignUpRoute().push(context);
+                        const SizedBox(height: 32),
+                        const FormLabel('Email Address'),
+                        const SizedBox(height: 8),
+                        FTextField(
+                          control: FTextFieldControl.managed(
+                            controller: _emailController,
+                          ),
+                          hint: 'Enter your email',
+                          keyboardType: TextInputType.emailAddress,
+                          prefixBuilder: (context, style, states) => Icon(
+                            FIcons.mail,
+                            color: colors.textSecondary,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: .spaceBetween,
+                          children: [
+                            const FormLabel('Password'),
+                            FTappable(
+                              onPress: () =>
+                                  const ForgotPasswordRoute().push(context),
+                              child: Text(
+                                'Forgot Password?',
+                                style: context.theme.typography.sm.copyWith(
+                                  color: AppTheme.primaryYellow,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        FTextField(
+                          control: FTextFieldControl.managed(
+                            controller: _passwordController,
+                          ),
+                          hint: 'Enter your password',
+                          obscureText: _obscurePassword,
+                          prefixBuilder: (context, style, states) => Icon(
+                            FIcons.lock,
+                            color: colors.textSecondary,
+                            size: 20,
+                          ),
+                          suffixBuilder: (context, style, states) => FTappable(
+                            onPress: () => setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            ),
+                            child: Icon(
+                              _obscurePassword ? FIcons.eyeOff : FIcons.eye,
+                              color: colors.textSecondary,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        BlocBuilder<AuthBloc, AuthState>(
+                          builder: (context, state) {
+                            final isLoading = state.maybeWhen(
+                              loading: () => true,
+                              orElse: () => false,
+                            );
+                            return FButton(
+                              onPress: isLoading ? null : _onLogin,
+                              child: isLoading
+                                  ? SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: colors.background,
+                                      ),
+                                    )
+                                  : const Text('Log In'),
+                            );
                           },
-                          child: const Text('Sign Up'),
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            const Expanded(child: FDivider()),
+                            Padding(
+                              padding: const .symmetric(horizontal: 16),
+                              child: Text(
+                                'Or continue with',
+                                style: context.theme.typography.sm.copyWith(
+                                  color: colors.textSecondary,
+                                ),
+                              ),
+                            ),
+                            const Expanded(child: FDivider()),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        FButton(
+                          onPress: _onGoogleSignIn,
+                          style: FButtonStyle.outline(),
+                          prefix: Image.network(
+                            'https://www.google.com/favicon.ico',
+                            width: 20,
+                            height: 20,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(FIcons.globe, size: 20),
+                          ),
+                          child: const Text('Google'),
+                        ),
+                        const SizedBox(height: 32),
+                        FButton(
+                          onPress: () => const MagicLinkRoute().push(context),
+                          style: FButtonStyle.secondary(),
+                          child: const Text('Send Magic Link'),
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: .center,
+                          children: [
+                            Text(
+                              "Don't have an account? ",
+                              style: context.theme.typography.sm.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            FTappable(
+                              onPress: () => const SignUpRoute().push(context),
+                              child: Text(
+                                'Sign Up',
+                                style: context.theme.typography.sm.copyWith(
+                                  color: AppTheme.primaryYellow,
+                                  fontWeight: .w600,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),

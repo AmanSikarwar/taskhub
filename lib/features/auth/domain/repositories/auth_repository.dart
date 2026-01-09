@@ -46,4 +46,9 @@ abstract class AuthRepository {
     required String accessToken,
     required String refreshToken,
   });
+
+  Future<({AppUser? user, AuthFailure? failure})> updateProfile({
+    String? displayName,
+    String? avatarUrl,
+  });
 }

@@ -55,7 +55,7 @@ extension AuthEventPatterns on AuthEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( CheckAuthStatus value)?  checkAuthStatus,TResult Function( SignUpWithEmailAndPassword value)?  signUpWithEmailAndPassword,TResult Function( SignInWithEmailAndPassword value)?  signInWithEmailAndPassword,TResult Function( SignInWithGoogle value)?  signInWithGoogle,TResult Function( SignInWithMagicLink value)?  signInWithMagicLink,TResult Function( SignOut value)?  signOut,TResult Function( SendPasswordResetEmail value)?  sendPasswordResetEmail,TResult Function( UpdatePassword value)?  updatePassword,TResult Function( ResendVerificationEmail value)?  resendVerificationEmail,TResult Function( VerifyOtp value)?  verifyOtp,TResult Function( HandleDeepLinkTokenHash value)?  handleDeepLinkTokenHash,TResult Function( HandleDeepLinkSession value)?  handleDeepLinkSession,TResult Function( AuthStateChanged value)?  authStateChanged,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( CheckAuthStatus value)?  checkAuthStatus,TResult Function( SignUpWithEmailAndPassword value)?  signUpWithEmailAndPassword,TResult Function( SignInWithEmailAndPassword value)?  signInWithEmailAndPassword,TResult Function( SignInWithGoogle value)?  signInWithGoogle,TResult Function( SignInWithMagicLink value)?  signInWithMagicLink,TResult Function( SignOut value)?  signOut,TResult Function( SendPasswordResetEmail value)?  sendPasswordResetEmail,TResult Function( UpdatePassword value)?  updatePassword,TResult Function( ResendVerificationEmail value)?  resendVerificationEmail,TResult Function( VerifyOtp value)?  verifyOtp,TResult Function( HandleDeepLinkTokenHash value)?  handleDeepLinkTokenHash,TResult Function( HandleDeepLinkSession value)?  handleDeepLinkSession,TResult Function( AuthStateChanged value)?  authStateChanged,TResult Function( UpdateProfile value)?  updateProfile,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case CheckAuthStatus() when checkAuthStatus != null:
@@ -71,7 +71,8 @@ return resendVerificationEmail(_that);case VerifyOtp() when verifyOtp != null:
 return verifyOtp(_that);case HandleDeepLinkTokenHash() when handleDeepLinkTokenHash != null:
 return handleDeepLinkTokenHash(_that);case HandleDeepLinkSession() when handleDeepLinkSession != null:
 return handleDeepLinkSession(_that);case AuthStateChanged() when authStateChanged != null:
-return authStateChanged(_that);case _:
+return authStateChanged(_that);case UpdateProfile() when updateProfile != null:
+return updateProfile(_that);case _:
   return orElse();
 
 }
@@ -89,7 +90,7 @@ return authStateChanged(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( CheckAuthStatus value)  checkAuthStatus,required TResult Function( SignUpWithEmailAndPassword value)  signUpWithEmailAndPassword,required TResult Function( SignInWithEmailAndPassword value)  signInWithEmailAndPassword,required TResult Function( SignInWithGoogle value)  signInWithGoogle,required TResult Function( SignInWithMagicLink value)  signInWithMagicLink,required TResult Function( SignOut value)  signOut,required TResult Function( SendPasswordResetEmail value)  sendPasswordResetEmail,required TResult Function( UpdatePassword value)  updatePassword,required TResult Function( ResendVerificationEmail value)  resendVerificationEmail,required TResult Function( VerifyOtp value)  verifyOtp,required TResult Function( HandleDeepLinkTokenHash value)  handleDeepLinkTokenHash,required TResult Function( HandleDeepLinkSession value)  handleDeepLinkSession,required TResult Function( AuthStateChanged value)  authStateChanged,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( CheckAuthStatus value)  checkAuthStatus,required TResult Function( SignUpWithEmailAndPassword value)  signUpWithEmailAndPassword,required TResult Function( SignInWithEmailAndPassword value)  signInWithEmailAndPassword,required TResult Function( SignInWithGoogle value)  signInWithGoogle,required TResult Function( SignInWithMagicLink value)  signInWithMagicLink,required TResult Function( SignOut value)  signOut,required TResult Function( SendPasswordResetEmail value)  sendPasswordResetEmail,required TResult Function( UpdatePassword value)  updatePassword,required TResult Function( ResendVerificationEmail value)  resendVerificationEmail,required TResult Function( VerifyOtp value)  verifyOtp,required TResult Function( HandleDeepLinkTokenHash value)  handleDeepLinkTokenHash,required TResult Function( HandleDeepLinkSession value)  handleDeepLinkSession,required TResult Function( AuthStateChanged value)  authStateChanged,required TResult Function( UpdateProfile value)  updateProfile,}){
 final _that = this;
 switch (_that) {
 case CheckAuthStatus():
@@ -105,7 +106,8 @@ return resendVerificationEmail(_that);case VerifyOtp():
 return verifyOtp(_that);case HandleDeepLinkTokenHash():
 return handleDeepLinkTokenHash(_that);case HandleDeepLinkSession():
 return handleDeepLinkSession(_that);case AuthStateChanged():
-return authStateChanged(_that);case _:
+return authStateChanged(_that);case UpdateProfile():
+return updateProfile(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -122,7 +124,7 @@ return authStateChanged(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( CheckAuthStatus value)?  checkAuthStatus,TResult? Function( SignUpWithEmailAndPassword value)?  signUpWithEmailAndPassword,TResult? Function( SignInWithEmailAndPassword value)?  signInWithEmailAndPassword,TResult? Function( SignInWithGoogle value)?  signInWithGoogle,TResult? Function( SignInWithMagicLink value)?  signInWithMagicLink,TResult? Function( SignOut value)?  signOut,TResult? Function( SendPasswordResetEmail value)?  sendPasswordResetEmail,TResult? Function( UpdatePassword value)?  updatePassword,TResult? Function( ResendVerificationEmail value)?  resendVerificationEmail,TResult? Function( VerifyOtp value)?  verifyOtp,TResult? Function( HandleDeepLinkTokenHash value)?  handleDeepLinkTokenHash,TResult? Function( HandleDeepLinkSession value)?  handleDeepLinkSession,TResult? Function( AuthStateChanged value)?  authStateChanged,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( CheckAuthStatus value)?  checkAuthStatus,TResult? Function( SignUpWithEmailAndPassword value)?  signUpWithEmailAndPassword,TResult? Function( SignInWithEmailAndPassword value)?  signInWithEmailAndPassword,TResult? Function( SignInWithGoogle value)?  signInWithGoogle,TResult? Function( SignInWithMagicLink value)?  signInWithMagicLink,TResult? Function( SignOut value)?  signOut,TResult? Function( SendPasswordResetEmail value)?  sendPasswordResetEmail,TResult? Function( UpdatePassword value)?  updatePassword,TResult? Function( ResendVerificationEmail value)?  resendVerificationEmail,TResult? Function( VerifyOtp value)?  verifyOtp,TResult? Function( HandleDeepLinkTokenHash value)?  handleDeepLinkTokenHash,TResult? Function( HandleDeepLinkSession value)?  handleDeepLinkSession,TResult? Function( AuthStateChanged value)?  authStateChanged,TResult? Function( UpdateProfile value)?  updateProfile,}){
 final _that = this;
 switch (_that) {
 case CheckAuthStatus() when checkAuthStatus != null:
@@ -138,7 +140,8 @@ return resendVerificationEmail(_that);case VerifyOtp() when verifyOtp != null:
 return verifyOtp(_that);case HandleDeepLinkTokenHash() when handleDeepLinkTokenHash != null:
 return handleDeepLinkTokenHash(_that);case HandleDeepLinkSession() when handleDeepLinkSession != null:
 return handleDeepLinkSession(_that);case AuthStateChanged() when authStateChanged != null:
-return authStateChanged(_that);case _:
+return authStateChanged(_that);case UpdateProfile() when updateProfile != null:
+return updateProfile(_that);case _:
   return null;
 
 }
@@ -155,7 +158,7 @@ return authStateChanged(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  checkAuthStatus,TResult Function( String email,  String password)?  signUpWithEmailAndPassword,TResult Function( String email,  String password)?  signInWithEmailAndPassword,TResult Function()?  signInWithGoogle,TResult Function( String email)?  signInWithMagicLink,TResult Function()?  signOut,TResult Function( String email)?  sendPasswordResetEmail,TResult Function( String newPassword)?  updatePassword,TResult Function( String email)?  resendVerificationEmail,TResult Function( String email,  String token,  String type)?  verifyOtp,TResult Function( String tokenHash,  String type)?  handleDeepLinkTokenHash,TResult Function( String accessToken,  String refreshToken,  String? type)?  handleDeepLinkSession,TResult Function( AppUser? user,  String eventType)?  authStateChanged,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  checkAuthStatus,TResult Function( String email,  String password)?  signUpWithEmailAndPassword,TResult Function( String email,  String password)?  signInWithEmailAndPassword,TResult Function()?  signInWithGoogle,TResult Function( String email)?  signInWithMagicLink,TResult Function()?  signOut,TResult Function( String email)?  sendPasswordResetEmail,TResult Function( String newPassword)?  updatePassword,TResult Function( String email)?  resendVerificationEmail,TResult Function( String email,  String token,  String type)?  verifyOtp,TResult Function( String tokenHash,  String type)?  handleDeepLinkTokenHash,TResult Function( String accessToken,  String refreshToken,  String? type)?  handleDeepLinkSession,TResult Function( AppUser? user,  String eventType)?  authStateChanged,TResult Function( String? displayName,  String? avatarUrl)?  updateProfile,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case CheckAuthStatus() when checkAuthStatus != null:
 return checkAuthStatus();case SignUpWithEmailAndPassword() when signUpWithEmailAndPassword != null:
@@ -170,7 +173,8 @@ return resendVerificationEmail(_that.email);case VerifyOtp() when verifyOtp != n
 return verifyOtp(_that.email,_that.token,_that.type);case HandleDeepLinkTokenHash() when handleDeepLinkTokenHash != null:
 return handleDeepLinkTokenHash(_that.tokenHash,_that.type);case HandleDeepLinkSession() when handleDeepLinkSession != null:
 return handleDeepLinkSession(_that.accessToken,_that.refreshToken,_that.type);case AuthStateChanged() when authStateChanged != null:
-return authStateChanged(_that.user,_that.eventType);case _:
+return authStateChanged(_that.user,_that.eventType);case UpdateProfile() when updateProfile != null:
+return updateProfile(_that.displayName,_that.avatarUrl);case _:
   return orElse();
 
 }
@@ -188,7 +192,7 @@ return authStateChanged(_that.user,_that.eventType);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  checkAuthStatus,required TResult Function( String email,  String password)  signUpWithEmailAndPassword,required TResult Function( String email,  String password)  signInWithEmailAndPassword,required TResult Function()  signInWithGoogle,required TResult Function( String email)  signInWithMagicLink,required TResult Function()  signOut,required TResult Function( String email)  sendPasswordResetEmail,required TResult Function( String newPassword)  updatePassword,required TResult Function( String email)  resendVerificationEmail,required TResult Function( String email,  String token,  String type)  verifyOtp,required TResult Function( String tokenHash,  String type)  handleDeepLinkTokenHash,required TResult Function( String accessToken,  String refreshToken,  String? type)  handleDeepLinkSession,required TResult Function( AppUser? user,  String eventType)  authStateChanged,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  checkAuthStatus,required TResult Function( String email,  String password)  signUpWithEmailAndPassword,required TResult Function( String email,  String password)  signInWithEmailAndPassword,required TResult Function()  signInWithGoogle,required TResult Function( String email)  signInWithMagicLink,required TResult Function()  signOut,required TResult Function( String email)  sendPasswordResetEmail,required TResult Function( String newPassword)  updatePassword,required TResult Function( String email)  resendVerificationEmail,required TResult Function( String email,  String token,  String type)  verifyOtp,required TResult Function( String tokenHash,  String type)  handleDeepLinkTokenHash,required TResult Function( String accessToken,  String refreshToken,  String? type)  handleDeepLinkSession,required TResult Function( AppUser? user,  String eventType)  authStateChanged,required TResult Function( String? displayName,  String? avatarUrl)  updateProfile,}) {final _that = this;
 switch (_that) {
 case CheckAuthStatus():
 return checkAuthStatus();case SignUpWithEmailAndPassword():
@@ -203,7 +207,8 @@ return resendVerificationEmail(_that.email);case VerifyOtp():
 return verifyOtp(_that.email,_that.token,_that.type);case HandleDeepLinkTokenHash():
 return handleDeepLinkTokenHash(_that.tokenHash,_that.type);case HandleDeepLinkSession():
 return handleDeepLinkSession(_that.accessToken,_that.refreshToken,_that.type);case AuthStateChanged():
-return authStateChanged(_that.user,_that.eventType);case _:
+return authStateChanged(_that.user,_that.eventType);case UpdateProfile():
+return updateProfile(_that.displayName,_that.avatarUrl);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -220,7 +225,7 @@ return authStateChanged(_that.user,_that.eventType);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  checkAuthStatus,TResult? Function( String email,  String password)?  signUpWithEmailAndPassword,TResult? Function( String email,  String password)?  signInWithEmailAndPassword,TResult? Function()?  signInWithGoogle,TResult? Function( String email)?  signInWithMagicLink,TResult? Function()?  signOut,TResult? Function( String email)?  sendPasswordResetEmail,TResult? Function( String newPassword)?  updatePassword,TResult? Function( String email)?  resendVerificationEmail,TResult? Function( String email,  String token,  String type)?  verifyOtp,TResult? Function( String tokenHash,  String type)?  handleDeepLinkTokenHash,TResult? Function( String accessToken,  String refreshToken,  String? type)?  handleDeepLinkSession,TResult? Function( AppUser? user,  String eventType)?  authStateChanged,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  checkAuthStatus,TResult? Function( String email,  String password)?  signUpWithEmailAndPassword,TResult? Function( String email,  String password)?  signInWithEmailAndPassword,TResult? Function()?  signInWithGoogle,TResult? Function( String email)?  signInWithMagicLink,TResult? Function()?  signOut,TResult? Function( String email)?  sendPasswordResetEmail,TResult? Function( String newPassword)?  updatePassword,TResult? Function( String email)?  resendVerificationEmail,TResult? Function( String email,  String token,  String type)?  verifyOtp,TResult? Function( String tokenHash,  String type)?  handleDeepLinkTokenHash,TResult? Function( String accessToken,  String refreshToken,  String? type)?  handleDeepLinkSession,TResult? Function( AppUser? user,  String eventType)?  authStateChanged,TResult? Function( String? displayName,  String? avatarUrl)?  updateProfile,}) {final _that = this;
 switch (_that) {
 case CheckAuthStatus() when checkAuthStatus != null:
 return checkAuthStatus();case SignUpWithEmailAndPassword() when signUpWithEmailAndPassword != null:
@@ -235,7 +240,8 @@ return resendVerificationEmail(_that.email);case VerifyOtp() when verifyOtp != n
 return verifyOtp(_that.email,_that.token,_that.type);case HandleDeepLinkTokenHash() when handleDeepLinkTokenHash != null:
 return handleDeepLinkTokenHash(_that.tokenHash,_that.type);case HandleDeepLinkSession() when handleDeepLinkSession != null:
 return handleDeepLinkSession(_that.accessToken,_that.refreshToken,_that.type);case AuthStateChanged() when authStateChanged != null:
-return authStateChanged(_that.user,_that.eventType);case _:
+return authStateChanged(_that.user,_that.eventType);case UpdateProfile() when updateProfile != null:
+return updateProfile(_that.displayName,_that.avatarUrl);case _:
   return null;
 
 }
@@ -1028,6 +1034,74 @@ $AppUserCopyWith<$Res>? get user {
 }
 
 /// @nodoc
+
+
+class UpdateProfile implements AuthEvent {
+  const UpdateProfile({this.displayName, this.avatarUrl});
+  
+
+ final  String? displayName;
+ final  String? avatarUrl;
+
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$UpdateProfileCopyWith<UpdateProfile> get copyWith => _$UpdateProfileCopyWithImpl<UpdateProfile>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateProfile&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,displayName,avatarUrl);
+
+@override
+String toString() {
+  return 'AuthEvent.updateProfile(displayName: $displayName, avatarUrl: $avatarUrl)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $UpdateProfileCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory $UpdateProfileCopyWith(UpdateProfile value, $Res Function(UpdateProfile) _then) = _$UpdateProfileCopyWithImpl;
+@useResult
+$Res call({
+ String? displayName, String? avatarUrl
+});
+
+
+
+
+}
+/// @nodoc
+class _$UpdateProfileCopyWithImpl<$Res>
+    implements $UpdateProfileCopyWith<$Res> {
+  _$UpdateProfileCopyWithImpl(this._self, this._then);
+
+  final UpdateProfile _self;
+  final $Res Function(UpdateProfile) _then;
+
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? displayName = freezed,Object? avatarUrl = freezed,}) {
+  return _then(UpdateProfile(
+displayName: freezed == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
+as String?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$AuthState {
 
 
@@ -1071,7 +1145,7 @@ extension AuthStatePatterns on AuthState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( AuthInitial value)?  initial,TResult Function( AuthLoading value)?  loading,TResult Function( Authenticated value)?  authenticated,TResult Function( Unauthenticated value)?  unauthenticated,TResult Function( EmailVerificationRequired value)?  emailVerificationRequired,TResult Function( PasswordResetEmailSent value)?  passwordResetEmailSent,TResult Function( PasswordUpdated value)?  passwordUpdated,TResult Function( PasswordResetReady value)?  passwordResetReady,TResult Function( AuthError value)?  error,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( AuthInitial value)?  initial,TResult Function( AuthLoading value)?  loading,TResult Function( Authenticated value)?  authenticated,TResult Function( Unauthenticated value)?  unauthenticated,TResult Function( EmailVerificationRequired value)?  emailVerificationRequired,TResult Function( PasswordResetEmailSent value)?  passwordResetEmailSent,TResult Function( PasswordUpdated value)?  passwordUpdated,TResult Function( ProfileUpdated value)?  profileUpdated,TResult Function( PasswordResetReady value)?  passwordResetReady,TResult Function( AuthError value)?  error,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case AuthInitial() when initial != null:
@@ -1081,7 +1155,8 @@ return authenticated(_that);case Unauthenticated() when unauthenticated != null:
 return unauthenticated(_that);case EmailVerificationRequired() when emailVerificationRequired != null:
 return emailVerificationRequired(_that);case PasswordResetEmailSent() when passwordResetEmailSent != null:
 return passwordResetEmailSent(_that);case PasswordUpdated() when passwordUpdated != null:
-return passwordUpdated(_that);case PasswordResetReady() when passwordResetReady != null:
+return passwordUpdated(_that);case ProfileUpdated() when profileUpdated != null:
+return profileUpdated(_that);case PasswordResetReady() when passwordResetReady != null:
 return passwordResetReady(_that);case AuthError() when error != null:
 return error(_that);case _:
   return orElse();
@@ -1101,7 +1176,7 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( AuthInitial value)  initial,required TResult Function( AuthLoading value)  loading,required TResult Function( Authenticated value)  authenticated,required TResult Function( Unauthenticated value)  unauthenticated,required TResult Function( EmailVerificationRequired value)  emailVerificationRequired,required TResult Function( PasswordResetEmailSent value)  passwordResetEmailSent,required TResult Function( PasswordUpdated value)  passwordUpdated,required TResult Function( PasswordResetReady value)  passwordResetReady,required TResult Function( AuthError value)  error,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( AuthInitial value)  initial,required TResult Function( AuthLoading value)  loading,required TResult Function( Authenticated value)  authenticated,required TResult Function( Unauthenticated value)  unauthenticated,required TResult Function( EmailVerificationRequired value)  emailVerificationRequired,required TResult Function( PasswordResetEmailSent value)  passwordResetEmailSent,required TResult Function( PasswordUpdated value)  passwordUpdated,required TResult Function( ProfileUpdated value)  profileUpdated,required TResult Function( PasswordResetReady value)  passwordResetReady,required TResult Function( AuthError value)  error,}){
 final _that = this;
 switch (_that) {
 case AuthInitial():
@@ -1111,7 +1186,8 @@ return authenticated(_that);case Unauthenticated():
 return unauthenticated(_that);case EmailVerificationRequired():
 return emailVerificationRequired(_that);case PasswordResetEmailSent():
 return passwordResetEmailSent(_that);case PasswordUpdated():
-return passwordUpdated(_that);case PasswordResetReady():
+return passwordUpdated(_that);case ProfileUpdated():
+return profileUpdated(_that);case PasswordResetReady():
 return passwordResetReady(_that);case AuthError():
 return error(_that);}
 }
@@ -1127,7 +1203,7 @@ return error(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( AuthInitial value)?  initial,TResult? Function( AuthLoading value)?  loading,TResult? Function( Authenticated value)?  authenticated,TResult? Function( Unauthenticated value)?  unauthenticated,TResult? Function( EmailVerificationRequired value)?  emailVerificationRequired,TResult? Function( PasswordResetEmailSent value)?  passwordResetEmailSent,TResult? Function( PasswordUpdated value)?  passwordUpdated,TResult? Function( PasswordResetReady value)?  passwordResetReady,TResult? Function( AuthError value)?  error,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( AuthInitial value)?  initial,TResult? Function( AuthLoading value)?  loading,TResult? Function( Authenticated value)?  authenticated,TResult? Function( Unauthenticated value)?  unauthenticated,TResult? Function( EmailVerificationRequired value)?  emailVerificationRequired,TResult? Function( PasswordResetEmailSent value)?  passwordResetEmailSent,TResult? Function( PasswordUpdated value)?  passwordUpdated,TResult? Function( ProfileUpdated value)?  profileUpdated,TResult? Function( PasswordResetReady value)?  passwordResetReady,TResult? Function( AuthError value)?  error,}){
 final _that = this;
 switch (_that) {
 case AuthInitial() when initial != null:
@@ -1137,7 +1213,8 @@ return authenticated(_that);case Unauthenticated() when unauthenticated != null:
 return unauthenticated(_that);case EmailVerificationRequired() when emailVerificationRequired != null:
 return emailVerificationRequired(_that);case PasswordResetEmailSent() when passwordResetEmailSent != null:
 return passwordResetEmailSent(_that);case PasswordUpdated() when passwordUpdated != null:
-return passwordUpdated(_that);case PasswordResetReady() when passwordResetReady != null:
+return passwordUpdated(_that);case ProfileUpdated() when profileUpdated != null:
+return profileUpdated(_that);case PasswordResetReady() when passwordResetReady != null:
 return passwordResetReady(_that);case AuthError() when error != null:
 return error(_that);case _:
   return null;
@@ -1156,7 +1233,7 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( AppUser user)?  authenticated,TResult Function()?  unauthenticated,TResult Function( String email)?  emailVerificationRequired,TResult Function()?  passwordResetEmailSent,TResult Function()?  passwordUpdated,TResult Function( AppUser user)?  passwordResetReady,TResult Function( AuthFailure failure)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( AppUser user)?  authenticated,TResult Function()?  unauthenticated,TResult Function( String email)?  emailVerificationRequired,TResult Function()?  passwordResetEmailSent,TResult Function()?  passwordUpdated,TResult Function( AppUser user)?  profileUpdated,TResult Function( AppUser user)?  passwordResetReady,TResult Function( AuthFailure failure)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case AuthInitial() when initial != null:
 return initial();case AuthLoading() when loading != null:
@@ -1165,7 +1242,8 @@ return authenticated(_that.user);case Unauthenticated() when unauthenticated != 
 return unauthenticated();case EmailVerificationRequired() when emailVerificationRequired != null:
 return emailVerificationRequired(_that.email);case PasswordResetEmailSent() when passwordResetEmailSent != null:
 return passwordResetEmailSent();case PasswordUpdated() when passwordUpdated != null:
-return passwordUpdated();case PasswordResetReady() when passwordResetReady != null:
+return passwordUpdated();case ProfileUpdated() when profileUpdated != null:
+return profileUpdated(_that.user);case PasswordResetReady() when passwordResetReady != null:
 return passwordResetReady(_that.user);case AuthError() when error != null:
 return error(_that.failure);case _:
   return orElse();
@@ -1185,7 +1263,7 @@ return error(_that.failure);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( AppUser user)  authenticated,required TResult Function()  unauthenticated,required TResult Function( String email)  emailVerificationRequired,required TResult Function()  passwordResetEmailSent,required TResult Function()  passwordUpdated,required TResult Function( AppUser user)  passwordResetReady,required TResult Function( AuthFailure failure)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( AppUser user)  authenticated,required TResult Function()  unauthenticated,required TResult Function( String email)  emailVerificationRequired,required TResult Function()  passwordResetEmailSent,required TResult Function()  passwordUpdated,required TResult Function( AppUser user)  profileUpdated,required TResult Function( AppUser user)  passwordResetReady,required TResult Function( AuthFailure failure)  error,}) {final _that = this;
 switch (_that) {
 case AuthInitial():
 return initial();case AuthLoading():
@@ -1194,7 +1272,8 @@ return authenticated(_that.user);case Unauthenticated():
 return unauthenticated();case EmailVerificationRequired():
 return emailVerificationRequired(_that.email);case PasswordResetEmailSent():
 return passwordResetEmailSent();case PasswordUpdated():
-return passwordUpdated();case PasswordResetReady():
+return passwordUpdated();case ProfileUpdated():
+return profileUpdated(_that.user);case PasswordResetReady():
 return passwordResetReady(_that.user);case AuthError():
 return error(_that.failure);}
 }
@@ -1210,7 +1289,7 @@ return error(_that.failure);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( AppUser user)?  authenticated,TResult? Function()?  unauthenticated,TResult? Function( String email)?  emailVerificationRequired,TResult? Function()?  passwordResetEmailSent,TResult? Function()?  passwordUpdated,TResult? Function( AppUser user)?  passwordResetReady,TResult? Function( AuthFailure failure)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( AppUser user)?  authenticated,TResult? Function()?  unauthenticated,TResult? Function( String email)?  emailVerificationRequired,TResult? Function()?  passwordResetEmailSent,TResult? Function()?  passwordUpdated,TResult? Function( AppUser user)?  profileUpdated,TResult? Function( AppUser user)?  passwordResetReady,TResult? Function( AuthFailure failure)?  error,}) {final _that = this;
 switch (_that) {
 case AuthInitial() when initial != null:
 return initial();case AuthLoading() when loading != null:
@@ -1219,7 +1298,8 @@ return authenticated(_that.user);case Unauthenticated() when unauthenticated != 
 return unauthenticated();case EmailVerificationRequired() when emailVerificationRequired != null:
 return emailVerificationRequired(_that.email);case PasswordResetEmailSent() when passwordResetEmailSent != null:
 return passwordResetEmailSent();case PasswordUpdated() when passwordUpdated != null:
-return passwordUpdated();case PasswordResetReady() when passwordResetReady != null:
+return passwordUpdated();case ProfileUpdated() when profileUpdated != null:
+return profileUpdated(_that.user);case PasswordResetReady() when passwordResetReady != null:
 return passwordResetReady(_that.user);case AuthError() when error != null:
 return error(_that.failure);case _:
   return null;
@@ -1529,6 +1609,81 @@ String toString() {
 
 
 
+
+/// @nodoc
+
+
+class ProfileUpdated implements AuthState {
+  const ProfileUpdated(this.user);
+  
+
+ final  AppUser user;
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProfileUpdatedCopyWith<ProfileUpdated> get copyWith => _$ProfileUpdatedCopyWithImpl<ProfileUpdated>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfileUpdated&&(identical(other.user, user) || other.user == user));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,user);
+
+@override
+String toString() {
+  return 'AuthState.profileUpdated(user: $user)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProfileUpdatedCopyWith<$Res> implements $AuthStateCopyWith<$Res> {
+  factory $ProfileUpdatedCopyWith(ProfileUpdated value, $Res Function(ProfileUpdated) _then) = _$ProfileUpdatedCopyWithImpl;
+@useResult
+$Res call({
+ AppUser user
+});
+
+
+$AppUserCopyWith<$Res> get user;
+
+}
+/// @nodoc
+class _$ProfileUpdatedCopyWithImpl<$Res>
+    implements $ProfileUpdatedCopyWith<$Res> {
+  _$ProfileUpdatedCopyWithImpl(this._self, this._then);
+
+  final ProfileUpdated _self;
+  final $Res Function(ProfileUpdated) _then;
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? user = null,}) {
+  return _then(ProfileUpdated(
+null == user ? _self.user : user // ignore: cast_nullable_to_non_nullable
+as AppUser,
+  ));
+}
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$AppUserCopyWith<$Res> get user {
+  
+  return $AppUserCopyWith<$Res>(_self.user, (value) {
+    return _then(_self.copyWith(user: value));
+  });
+}
+}
 
 /// @nodoc
 

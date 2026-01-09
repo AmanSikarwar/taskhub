@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
@@ -9,8 +8,43 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/magic_link_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
 import '../../features/auth/presentation/pages/update_password_page.dart';
+import '../../features/calendar/presentation/pages/calendar_page.dart';
+import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/home/presentation/widgets/main_shell.dart';
+import '../../features/notifications/presentation/pages/notifications_page.dart';
+import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/onboarding/presentation/pages/splash_page.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/projects/presentation/pages/project_detail_page.dart';
+import '../../features/projects/presentation/pages/projects_page.dart';
+import '../../features/tasks/presentation/pages/my_tasks_page.dart';
+import '../../features/tasks/presentation/pages/task_detail_page.dart';
 
 part 'app_router.g.dart';
+
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _shellNavigatorKey =
+    GlobalKey<NavigatorState>();
+
+@TypedGoRoute<SplashRoute>(path: '/splash')
+class SplashRoute extends GoRouteData with $SplashRoute {
+  const SplashRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const SplashPage();
+  }
+}
+
+@TypedGoRoute<OnboardingRoute>(path: '/onboarding')
+class OnboardingRoute extends GoRouteData with $OnboardingRoute {
+  const OnboardingRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const OnboardingPage();
+  }
+}
 
 @TypedGoRoute<HomeRoute>(path: '/')
 class HomeRoute extends GoRouteData with $HomeRoute {
@@ -84,62 +118,84 @@ class EmailVerificationRoute extends GoRouteData with $EmailVerificationRoute {
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+@TypedGoRoute<ProjectsRoute>(path: '/projects')
+class ProjectsRoute extends GoRouteData with $ProjectsRoute {
+  const ProjectsRoute();
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('TaskHub'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              context.read<AuthBloc>().add(const .signOut());
-            },
-          ),
-        ],
-      ),
-      body: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, state) {
-          final user = state.whenOrNull(authenticated: (user) => user);
-          return Center(
-            child: Column(
-              mainAxisAlignment: .center,
-              children: [
-                const Icon(Icons.check_circle, size: 80, color: Colors.green),
-                const SizedBox(height: 24),
-                Text(
-                  'Welcome!',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 8),
-                if (user != null) ...[
-                  Text(
-                    user.email,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  if (user.displayName != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      user.displayName!,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ],
-              ],
-            ),
-          );
-        },
-      ),
-    );
+  Widget build(BuildContext context, GoRouterState state) {
+    return const ProjectsPage();
+  }
+}
+
+@TypedGoRoute<ProjectDetailRoute>(path: '/projects/:projectId')
+class ProjectDetailRoute extends GoRouteData with $ProjectDetailRoute {
+  final String projectId;
+
+  const ProjectDetailRoute({required this.projectId});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return ProjectDetailPage(projectId: projectId);
+  }
+}
+
+@TypedGoRoute<MyTasksRoute>(path: '/my-tasks')
+class MyTasksRoute extends GoRouteData with $MyTasksRoute {
+  const MyTasksRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const MyTasksPage();
+  }
+}
+
+@TypedGoRoute<TaskDetailRoute>(path: '/tasks/:taskId')
+class TaskDetailRoute extends GoRouteData with $TaskDetailRoute {
+  final String taskId;
+
+  const TaskDetailRoute({required this.taskId});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return TaskDetailPage(taskId: taskId);
+  }
+}
+
+@TypedGoRoute<CalendarRoute>(path: '/calendar')
+class CalendarRoute extends GoRouteData with $CalendarRoute {
+  const CalendarRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const CalendarPage();
+  }
+}
+
+@TypedGoRoute<NotificationsRoute>(path: '/notifications')
+class NotificationsRoute extends GoRouteData with $NotificationsRoute {
+  const NotificationsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const NotificationsPage();
+  }
+}
+
+@TypedGoRoute<ProfileRoute>(path: '/profile')
+class ProfileRoute extends GoRouteData with $ProfileRoute {
+  const ProfileRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const ProfilePage();
   }
 }
 
 GoRouter createAppRouter(AuthBloc authBloc) {
   return GoRouter(
-    initialLocation: const LoginRoute().location,
+    navigatorKey: _rootNavigatorKey,
+    initialLocation: const SplashRoute().location,
     refreshListenable: GoRouterRefreshStream(authBloc.stream),
     redirect: (context, state) {
       final authState = authBloc.state;
@@ -176,7 +232,40 @@ GoRouter createAppRouter(AuthBloc authBloc) {
 
       return null;
     },
-    routes: $appRoutes,
+    routes: [
+      ShellRoute(
+        navigatorKey: _shellNavigatorKey,
+        builder: (context, state, child) => MainShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: HomePage()),
+          ),
+          GoRoute(
+            path: '/projects',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ProjectsPage()),
+          ),
+          GoRoute(
+            path: '/calendar',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: CalendarPage()),
+          ),
+          GoRoute(
+            path: '/notifications',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: NotificationsPage()),
+          ),
+          GoRoute(
+            path: '/profile',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ProfilePage()),
+          ),
+        ],
+      ),
+      ...$appRoutes.where((route) => route is! ShellRoute),
+    ],
   );
 }
 

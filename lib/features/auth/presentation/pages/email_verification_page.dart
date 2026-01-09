@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:forui/forui.dart';
 
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/error_messages.dart';
+import '../../../../core/widgets/app_widgets.dart';
 import '../bloc/auth_bloc.dart';
 
 class EmailVerificationPage extends StatefulWidget {
@@ -14,6 +18,7 @@ class EmailVerificationPage extends StatefulWidget {
 
 class _EmailVerificationPageState extends State<EmailVerificationPage> {
   final _otpController = TextEditingController();
+  static const _otpLength = 8;
 
   @override
   void dispose() {
@@ -22,7 +27,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
   }
 
   void _onVerifyOtp() {
-    if (_otpController.text.length == 8) {
+    if (_otpController.text.length == _otpLength) {
       context.read<AuthBloc>().add(
         .verifyOtp(
           email: widget.email,
@@ -39,163 +44,180 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text('Verify Email'),
-      ),
-      body: BlocListener<AuthBloc, AuthState>(
+    final colors = context.appColors;
+
+    return FScaffold(
+      childPad: false,
+      child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is Authenticated) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Email verified successfully!'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          } else if (state is EmailVerificationRequired) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Verification email sent!'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(_getErrorMessage(state.failure)),
-                backgroundColor: Theme.of(context).colorScheme.error,
-              ),
-            );
-          }
+          state.whenOrNull(
+            authenticated: (user) {
+              showFToast(
+                context: context,
+                icon: const Icon(FIcons.check),
+                title: const Text('Email verified successfully!'),
+                duration: const Duration(seconds: 3),
+              );
+            },
+            emailVerificationRequired: (_) {
+              showFToast(
+                context: context,
+                icon: const Icon(FIcons.info),
+                title: const Text('Verification email sent!'),
+                duration: const Duration(seconds: 3),
+              );
+            },
+            error: (failure) {
+              showFToast(
+                context: context,
+                icon: const Icon(FIcons.triangleAlert),
+                title: Text(ErrorMessages.fromAuthFailure(failure)),
+                duration: const Duration(seconds: 4),
+              );
+            },
+          );
         },
-        child: SafeArea(
-          child: Padding(
-            padding: const .all(24),
+        child: Container(
+          color: colors.background,
+          child: SafeArea(
             child: Column(
-              mainAxisAlignment: .center,
-              crossAxisAlignment: .stretch,
               children: [
-                Icon(
-                  Icons.mark_email_unread_outlined,
-                  size: 80,
-                  color: Theme.of(context).colorScheme.primary,
+                const AppPageHeader(
+                  title: 'Verify Email',
+                  showBackButton: true,
                 ),
-                const SizedBox(height: 24),
-
-                Text(
-                  'Verify Your Email',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.headlineSmall?.copyWith(fontWeight: .bold),
-                  textAlign: .center,
-                ),
-                const SizedBox(height: 16),
-
-                Text(
-                  'We\'ve sent a verification code to:',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  textAlign: .center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  widget.email,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontWeight: .bold,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  textAlign: .center,
-                ),
-                const SizedBox(height: 32),
-
-                TextFormField(
-                  controller: _otpController,
-                  keyboardType: .number,
-                  textAlign: .center,
-                  maxLength: 8,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.headlineMedium?.copyWith(letterSpacing: 8),
-                  decoration: const InputDecoration(
-                    hintText: '00000000',
-                    border: OutlineInputBorder(),
-                    counterText: '',
-                  ),
-                  onChanged: (value) {
-                    if (value.length == 6) {
-                      _onVerifyOtp();
-                    }
-                  },
-                ),
-                const SizedBox(height: 24),
-
-                BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    final isLoading = state is AuthLoading;
-                    return FilledButton(
-                      onPressed: isLoading ? null : _onVerifyOtp,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Verify'),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                Row(
-                  mainAxisAlignment: .center,
-                  children: [
-                    Text(
-                      "Didn't receive the code? ",
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    BlocBuilder<AuthBloc, AuthState>(
-                      builder: (context, state) {
-                        final isLoading = state is AuthLoading;
-                        return TextButton(
-                          onPressed: isLoading ? null : _onResendEmail,
-                          child: const Text('Resend'),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-
-                Container(
-                  padding: const .all(16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest
-                        .withValues(alpha: 0.5),
-                    borderRadius: .circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Check your spam folder if you don\'t see the email in your inbox.',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const .all(24),
+                    child: Column(
+                      mainAxisAlignment: .center,
+                      crossAxisAlignment: .stretch,
+                      children: [
+                        const Icon(
+                          FIcons.mailCheck,
+                          size: 80,
+                          color: AppTheme.primaryYellow,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 24),
+                        Text(
+                          'Verify Your Email',
+                          style: context.theme.typography.xl2.copyWith(
+                            fontWeight: .bold,
+                            color: colors.textPrimary,
+                          ),
+                          textAlign: .center,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          "We've sent a verification code to:",
+                          style: context.theme.typography.base.copyWith(
+                            color: colors.textSecondary,
+                          ),
+                          textAlign: .center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.email,
+                          style: context.theme.typography.base.copyWith(
+                            fontWeight: .bold,
+                            color: AppTheme.primaryYellow,
+                          ),
+                          textAlign: .center,
+                        ),
+                        const SizedBox(height: 32),
+                        const FormLabel('Verification Code'),
+                        const SizedBox(height: 8),
+                        FTextField(
+                          control: FTextFieldControl.managed(
+                            controller: _otpController,
+                            onChange: (value) {
+                              if (value.text.length == _otpLength) {
+                                _onVerifyOtp();
+                              }
+                            },
+                          ),
+                          hint: '00000000',
+                          keyboardType: TextInputType.number,
+                          maxLength: _otpLength,
+                          textAlign: .center,
+                        ),
+                        const SizedBox(height: 24),
+                        BlocBuilder<AuthBloc, AuthState>(
+                          builder: (context, state) {
+                            final isLoading = state.maybeWhen(
+                              loading: () => true,
+                              orElse: () => false,
+                            );
+                            return FButton(
+                              onPress: isLoading ? null : _onVerifyOtp,
+                              child: isLoading
+                                  ? SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: colors.background,
+                                      ),
+                                    )
+                                  : const Text('Verify'),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: .center,
+                          children: [
+                            Text(
+                              "Didn't receive the code? ",
+                              style: context.theme.typography.sm.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            BlocBuilder<AuthBloc, AuthState>(
+                              builder: (context, state) {
+                                final isLoading = state.maybeWhen(
+                                  loading: () => true,
+                                  orElse: () => false,
+                                );
+                                return FTappable(
+                                  onPress: isLoading ? null : _onResendEmail,
+                                  child: Text(
+                                    'Resend',
+                                    style: context.theme.typography.sm.copyWith(
+                                      color: AppTheme.primaryYellow,
+                                      fontWeight: .w600,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+                        Container(
+                          padding: const .all(16),
+                          decoration: BoxDecoration(
+                            color: colors.backgroundCard,
+                            borderRadius: .circular(12),
+                            border: .all(color: colors.border),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(FIcons.info, color: colors.textSecondary),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  "Check your spam folder if you don't see the email in your inbox.",
+                                  style: context.theme.typography.sm.copyWith(
+                                    color: colors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -203,21 +225,6 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
           ),
         ),
       ),
-    );
-  }
-
-  String _getErrorMessage(dynamic failure) {
-    return failure.when(
-      serverError: (message) => message,
-      emailAlreadyInUse: () => 'This email is already registered',
-      invalidEmailAndPasswordCombination: () => 'Invalid verification code',
-      weakPassword: () => 'Password is too weak',
-      userNotFound: () => 'No account found with this email',
-      emailNotVerified: () => 'Please verify your email first',
-      tooManyRequests: () => 'Too many attempts. Please try again later',
-      networkError: () => 'Network error. Please check your connection',
-      cancelledByUser: () => 'Operation cancelled',
-      unknown: (message) => message,
     );
   }
 }

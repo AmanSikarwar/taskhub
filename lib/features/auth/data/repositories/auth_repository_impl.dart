@@ -15,16 +15,17 @@ import '../../domain/repositories/auth_repository.dart';
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
   final GoTrueClient _auth;
+  final GoogleSignIn _googleSignIn;
   bool _googleSignInInitialized = false;
 
-  AuthRepositoryImpl(this._auth);
+  AuthRepositoryImpl(this._auth, this._googleSignIn);
 
   Future<void> _ensureGoogleSignInInitialized() async {
     if (_googleSignInInitialized) {
       return;
     }
 
-    final googleSignIn = GoogleSignIn.instance;
+    final googleSignIn = _googleSignIn;
 
     if (kIsWeb) {
       await googleSignIn.initialize(clientId: Env.googleWebClientId);
@@ -52,25 +53,17 @@ class AuthRepositoryImpl implements AuthRepository {
 
   /// Maps Supabase AuthChangeEvent to our AuthChangeEventType.
   AuthChangeEventType _mapAuthChangeEvent(AuthChangeEvent event) {
-    switch (event) {
-      case AuthChangeEvent.initialSession:
-        return AuthChangeEventType.initialSession;
-      case AuthChangeEvent.signedIn:
-        return AuthChangeEventType.signedIn;
-      case AuthChangeEvent.signedOut:
-        return AuthChangeEventType.signedOut;
-      case AuthChangeEvent.passwordRecovery:
-        return AuthChangeEventType.passwordRecovery;
-      case AuthChangeEvent.tokenRefreshed:
-        return AuthChangeEventType.tokenRefreshed;
-      case AuthChangeEvent.userUpdated:
-        return AuthChangeEventType.userUpdated;
+    return switch (event) {
+      .initialSession => .initialSession,
+      .signedIn => .signedIn,
+      .signedOut => .signedOut,
+      .passwordRecovery => .passwordRecovery,
+      .tokenRefreshed => .tokenRefreshed,
+      .userUpdated => .userUpdated,
       // ignore: deprecated_member_use
-      case AuthChangeEvent.userDeleted:
-        return AuthChangeEventType.userDeleted;
-      case AuthChangeEvent.mfaChallengeVerified:
-        return AuthChangeEventType.mfaChallengeVerified;
-    }
+      .userDeleted => .userDeleted,
+      .mfaChallengeVerified => .mfaChallengeVerified,
+    };
   }
 
   @override
@@ -141,7 +134,7 @@ class AuthRepositoryImpl implements AuthRepository {
           name: 'AuthRepository',
         );
         final response = await _auth.signInWithOAuth(
-          OAuthProvider.google,
+          .google,
           redirectTo: kIsWeb ? null : DeepLinkConfig.redirectUrl,
           authScreenLaunchMode: LaunchMode.externalApplication,
         );
@@ -256,7 +249,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<AuthFailure?> signOut() async {
     try {
-      await GoogleSignIn.instance.signOut();
+      await _googleSignIn.signOut();
       await _auth.signOut();
       return null;
     } on AuthException catch (e) {
@@ -312,7 +305,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<AuthFailure?> resendVerificationEmail({required String email}) async {
     try {
       await _auth.resend(
-        type: OtpType.signup,
+        type: .signup,
         email: email,
         emailRedirectTo: DeepLinkConfig.redirectUrl,
       );
@@ -332,9 +325,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final OtpType otpType = switch (type) {
-        AuthOtpType.signup => OtpType.signup,
-        AuthOtpType.recovery => OtpType.recovery,
-        AuthOtpType.email => OtpType.email,
+        .signup => .signup,
+        .recovery => .recovery,
+        .email => .email,
       };
       final response = await _auth.verifyOTP(
         email: email,
@@ -418,9 +411,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final OtpType otpType = switch (type) {
-        AuthOtpType.signup => OtpType.signup,
-        AuthOtpType.recovery => OtpType.recovery,
-        AuthOtpType.email => OtpType.email,
+        .signup => .signup,
+        .recovery => .recovery,
+        .email => .email,
       };
       final response = await _auth.verifyOTP(
         tokenHash: tokenHash,
@@ -444,6 +437,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<({AppUser? user, AuthFailure? failure})> setSessionFromTokens({
+    // accessToken is provided by deep links but Supabase's setSession
+    // only requires the refreshToken to establish a new session
     required String accessToken,
     required String refreshToken,
   }) async {
@@ -457,6 +452,37 @@ class AuthRepositoryImpl implements AuthRepository {
       return (
         user: null,
         failure: const AuthFailure.unknown('Failed to set session from tokens'),
+      );
+    } on AuthException catch (e) {
+      return (user: null, failure: _mapAuthException(e));
+    } catch (e) {
+      return (user: null, failure: AuthFailure.unknown(e.toString()));
+    }
+  }
+
+  @override
+  Future<({AppUser? user, AuthFailure? failure})> updateProfile({
+    String? displayName,
+    String? avatarUrl,
+  }) async {
+    try {
+      final Map<String, dynamic> data = {};
+      if (displayName != null) {
+        data['full_name'] = displayName;
+      }
+      if (avatarUrl != null) {
+        data['avatar_url'] = avatarUrl;
+      }
+
+      final response = await _auth.updateUser(UserAttributes(data: data));
+
+      if (response.user != null) {
+        return (user: _mapSupabaseUser(response.user!), failure: null);
+      }
+
+      return (
+        user: null,
+        failure: const AuthFailure.unknown('Profile update failed'),
       );
     } on AuthException catch (e) {
       return (user: null, failure: _mapAuthException(e));
