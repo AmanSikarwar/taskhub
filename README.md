@@ -28,32 +28,33 @@ TaskHub is a modern, cross-platform task management application built with Flutt
 ### Core Features
 
 - **Task Management**
+
   - Create, edit, and delete tasks
   - Set priorities (Low, Medium, High, Urgent)
   - Track status (To Do, In Progress, Completed, Cancelled)
   - Due date scheduling with overdue detection
   - Recurring tasks support
   - Swipe-to-delete with confirmation
-
 - **Project Collaboration**
+
   - Create and manage projects
   - Role-based access control (Admin, Editor, Viewer)
   - Invite team members
   - Track project progress with visual indicators
   - Color-coded project organization
-
 - **Calendar View**
+
   - Visual calendar with task scheduling
   - Day/week/month views
   - Task due date visualization
-
 - **Dashboard**
+
   - Overview statistics
   - Today's tasks at a glance
   - Recent projects
   - Quick actions
-
 - **Notifications**
+
   - Task reminders
   - Project updates
   - Collaboration notifications
@@ -70,27 +71,27 @@ TaskHub is a modern, cross-platform task management application built with Flutt
 
 ### Light Mode
 
-| Home | Tasks | Projects | Calendar |
-|:----:|:-----:|:--------:|:--------:|
-| ![Home Light](screenshots/home_light.png) | ![Tasks Light](screenshots/tasks_light.png) | ![Projects Light](screenshots/projects_light.png) | ![Calendar Light](screenshots/calendar_light.png) |
+|                  Home                  |                   Tasks                   |                    Projects                    |                    Calendar                    |
+| :-------------------------------------: | :---------------------------------------: | :---------------------------------------------: | :---------------------------------------------: |
+| ![Home Light](screenshots/home-light.png) | ![Tasks Light](screenshots/tasks-light.png) | ![Projects Light](screenshots/projects-light.png) | ![Calendar Light](screenshots/calendar-light.png) |
 
 ### Dark Mode
 
-| Home | Tasks | Projects | Calendar |
-|:----:|:-----:|:--------:|:--------:|
-| ![Home Dark](screenshots/home_dark.png) | ![Tasks Dark](screenshots/tasks_dark.png) | ![Projects Dark](screenshots/projects_dark.png) | ![Calendar Dark](screenshots/calendar_dark.png) |
+|                 Home                 |                  Tasks                  |                   Projects                   |                   Calendar                   |
+| :-----------------------------------: | :-------------------------------------: | :-------------------------------------------: | :-------------------------------------------: |
+| ![Home Dark](screenshots/home-dark.png) | ![Tasks Dark](screenshots/tasks-dark.png) | ![Projects Dark](screenshots/projects-dark.png) | ![Calendar Dark](screenshots/calendar-dark.png) |
 
 ### Authentication
 
-| Login | Sign Up | Onboarding |
-|:-----:|:-------:|:----------:|
-| ![Login](screenshots/login.png) | ![Sign Up](screenshots/signup.png) | ![Onboarding](screenshots/onboarding.png) |
+|             Login             |              Sign Up              |
+| :---------------------------: | :-------------------------------: |
+| ![Login](screenshots/login.png) | ![Sign Up](screenshots/sign-up.png) |
 
 ### Task Details
 
-| Task Creation | Task Detail | Task Completion |
-|:-------------:|:-----------:|:---------------:|
-| ![Create Task](screenshots/create_task.png) | ![Task Detail](screenshots/task_detail.png) | ![Task Complete](screenshots/task_complete.gif) |
+|                Create Task                |                Task Detail                |
+| :---------------------------------------: | :----------------------------------------: |
+| ![Create Task](screenshots/create-task.png) | ![Task Detail](screenshots/task-details.png) |
 
 ## Tech Stack
 
@@ -246,13 +247,13 @@ TaskDetailRoute(taskId: '123').push(context);
 ### Supabase Setup
 
 1. Create a new Supabase project at [supabase.com](https://supabase.com)
-
 2. Enable the following auth providers:
+
    - Email/Password
    - Google OAuth (optional)
    - Magic Link (optional)
-
 3. Configure deep links:
+
    - Callback URL: `io.taskhub://auth-callback`
 
 ## Project Structure
@@ -378,12 +379,12 @@ lib/
 
 ### Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `SUPABASE_URL` | Your Supabase project URL | Yes |
-| `SUPABASE_ANON_KEY` | Supabase anonymous/public key | Yes |
-| `GOOGLE_WEB_CLIENT_ID` | Google OAuth web client ID | No |
-| `GOOGLE_IOS_CLIENT_ID` | Google OAuth iOS client ID | No |
+| Variable                 | Description                   | Required |
+| ------------------------ | ----------------------------- | -------- |
+| `SUPABASE_URL`         | Your Supabase project URL     | Yes      |
+| `SUPABASE_ANON_KEY`    | Supabase anonymous/public key | Yes      |
+| `GOOGLE_WEB_CLIENT_ID` | Google OAuth web client ID    | No       |
+| `GOOGLE_IOS_CLIENT_ID` | Google OAuth iOS client ID    | No       |
 
 ## License
 
