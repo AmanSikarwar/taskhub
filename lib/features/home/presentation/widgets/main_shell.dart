@@ -271,10 +271,7 @@ class _DesktopLayout extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: .start,
                   children: [
-                    Padding(
-                      padding: const .all(24),
-                      child: const AppLogo(size: 40),
-                    ),
+                    const Padding(padding: .all(24), child: AppLogo(size: 40)),
                     const SizedBox(height: 8),
                     Expanded(
                       child: Padding(

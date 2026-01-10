@@ -15,7 +15,9 @@ class CalendarPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => getIt<CalendarBloc>()..add(.loadMonth(DateTime.now())),
+      create: (_) => getIt<CalendarBloc>()
+        ..add(.loadMonth(DateTime.now()))
+        ..add(.watchMonth(DateTime.now())),
       child: const CalendarView(),
     );
   }

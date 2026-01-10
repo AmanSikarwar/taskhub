@@ -27,7 +27,9 @@ class ProjectDetailPage extends StatelessWidget {
             ..add(.loadProjectMembers(projectId)),
         ),
         BlocProvider(
-          create: (_) => getIt<TaskBloc>()..add(.loadProjectTasks(projectId)),
+          create: (_) => getIt<TaskBloc>()
+            ..add(.loadProjectTasks(projectId))
+            ..add(.watchProjectTasks(projectId)),
         ),
       ],
       child: ProjectDetailView(projectId: projectId),

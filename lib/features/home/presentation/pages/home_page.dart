@@ -20,11 +20,14 @@ class HomePage extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) =>
-              getIt<ProjectBloc>()..add(const ProjectEvent.loadProjects()),
+          create: (_) => getIt<ProjectBloc>()
+            ..add(const .loadProjects())
+            ..add(const .watchProjects()),
         ),
         BlocProvider(
-          create: (_) => getIt<TaskBloc>()..add(const TaskEvent.loadMyTasks()),
+          create: (_) => getIt<TaskBloc>()
+            ..add(const .loadMyTasks())
+            ..add(const .watchMyTasks()),
         ),
       ],
       child: const HomeView(),

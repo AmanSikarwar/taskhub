@@ -18,8 +18,9 @@ class ProjectsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          getIt<ProjectBloc>()..add(const ProjectEvent.loadProjects()),
+      create: (_) => getIt<ProjectBloc>()
+        ..add(const .loadProjects())
+        ..add(const .watchProjects()),
       child: const ProjectsView(),
     );
   }

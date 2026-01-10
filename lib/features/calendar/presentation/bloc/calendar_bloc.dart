@@ -71,6 +71,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     if (currentMonth.year != newMonth.year ||
         currentMonth.month != newMonth.month) {
       add(.loadMonth(newMonth));
+      add(.watchMonth(newMonth));
     } else {
       emit(state.copyWithFocusedDay(newMonth));
     }
