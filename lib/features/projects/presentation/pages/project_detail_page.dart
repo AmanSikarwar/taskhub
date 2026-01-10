@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forui/forui.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -89,7 +90,7 @@ class ProjectDetailView extends StatelessWidget {
                   title: const Text('Project deleted'),
                   duration: const Duration(seconds: 3),
                 );
-                Navigator.pop(context);
+                context.pop();
               },
               projectUpdated: (project) {
                 showFToast(
@@ -140,9 +141,13 @@ class ProjectDetailView extends StatelessWidget {
           child: SafeArea(
             child: BlocBuilder<ProjectBloc, ProjectState>(
               builder: (context, projectState) {
-                final project = projectState.whenOrNull(
-                  projectLoaded: (project) => project,
-                );
+                final bloc = context.read<ProjectBloc>();
+                final project =
+                    bloc.cachedProject ??
+                    projectState.whenOrNull(
+                      projectLoaded: (project) => project,
+                      projectUpdated: (project) => project,
+                    );
 
                 return Column(
                   children: [

@@ -246,15 +246,105 @@ TaskDetailRoute(taskId: '123').push(context);
 
 ### Supabase Setup
 
-1. Create a new Supabase project at [supabase.com](https://supabase.com)
-2. Enable the following auth providers:
+Follow these steps to set up your Supabase backend:
 
-   - Email/Password
-   - Google OAuth (optional)
-   - Magic Link (optional)
-3. Configure deep links:
+#### 1. Create a Supabase Project
 
-   - Callback URL: `io.taskhub://auth-callback`
+1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
+2. Click **New Project**
+3. Enter a project name (e.g., "TaskHub")
+4. Set a secure database password (save this!)
+5. Select your preferred region
+6. Click **Create new project** and wait for initialization
+
+#### 2. Run the Database Setup Script
+
+The database schema includes 5 tables with Row Level Security policies:
+
+1. In your Supabase dashboard, go to **SQL Editor** (left sidebar)
+2. Click **New query**
+3. Open `supabase/setup.sql` from this repository
+4. Copy the entire contents and paste it into the SQL Editor
+5. Click **Run** (or press Cmd/Ctrl + Enter)
+6. You should see "Success. No rows returned"
+
+The script creates:
+
+- **Tables**: `profiles`, `projects`, `project_members`, `tasks`, `notifications`
+- **Enums**: `task_status`, `task_priority`, `project_role`, `notification_type`
+- **Functions**: 12 helper functions and triggers for automation
+- **Security**: Row Level Security (RLS) policies for all tables
+- **Realtime**: Enabled for all tables for live updates
+
+#### 3. Get Your API Keys
+
+1. In Supabase dashboard, go to **Project Settings** > **API**
+2. Copy the following:
+   - **Project URL** (e.g., `https://xxxx.supabase.co`)
+   - **anon public** key (under Project API keys)
+
+#### 4. Configure Authentication Providers
+
+**Email/Password** (enabled by default) - No additional setup needed.
+
+**Google OAuth** (optional):
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Create a new project or select an existing one
+3. Go to **APIs & Services** > **Credentials**
+4. Click **Create Credentials** > **OAuth client ID**
+5. For Web application:
+   - Add `https://YOUR_PROJECT_ID.supabase.co/auth/v1/callback` to Authorized redirect URIs
+6. For iOS:
+   - Select "iOS" as application type
+   - Enter your bundle ID (default: `com.example.taskhub`)
+7. Copy the Client IDs
+8. In Supabase dashboard:
+   - Go to **Authentication** > **Providers**
+   - Enable **Google**
+   - Paste your Client ID and Client Secret
+   - Save
+
+**Magic Link** (optional) - Enable in **Authentication** > **Providers** > **Email**
+
+#### 5. Configure Deep Links
+
+**iOS** - Already configured in `ios/Runner/Info.plist` with scheme `io.taskhub://auth-callback`
+
+**Android** - Add to `android/app/src/main/AndroidManifest.xml` inside the `<activity>` tag:
+
+```xml
+<intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+    <data android:scheme="io.taskhub" android:host="auth-callback" />
+</intent-filter>
+```
+
+#### Database Schema Overview
+
+```
+┌─────────────┐     ┌──────────────────┐     ┌─────────────┐
+│  profiles   │────<│ project_members  │>────│  projects   │
+│  (users)    │     │  (junction)      │     │             │
+└─────────────┘     └──────────────────┘     └──────┬──────┘
+       │                                            │
+       │                                            │
+       │            ┌─────────────────┐             │
+       └───────────>│     tasks       │<────────────┘
+                    │                 │
+                    └─────────────────┘
+                            │
+       ┌────────────────────┘
+       │
+       v
+┌─────────────────┐
+│  notifications  │
+└─────────────────┘
+```
+
+For detailed setup instructions and troubleshooting, see [supabase/README.md](supabase/README.md).
 
 ## Project Structure
 

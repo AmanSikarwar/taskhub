@@ -202,7 +202,10 @@ class EmailVerificationRoute extends GoRouteData with $EmailVerificationRoute {
   }
 }
 
-@TypedGoRoute<ProjectsRoute>(path: '/projects')
+@TypedGoRoute<ProjectsRoute>(
+  path: '/projects',
+  routes: [TypedGoRoute<ProjectDetailRoute>(path: ':projectId')],
+)
 class ProjectsRoute extends GoRouteData with $ProjectsRoute {
   const ProjectsRoute();
 
@@ -212,7 +215,6 @@ class ProjectsRoute extends GoRouteData with $ProjectsRoute {
   }
 }
 
-@TypedGoRoute<ProjectDetailRoute>(path: '/projects/:projectId')
 class ProjectDetailRoute extends GoRouteData with $ProjectDetailRoute {
   final String projectId;
 

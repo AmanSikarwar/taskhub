@@ -17,7 +17,6 @@ List<RouteBase> get $appRoutes => [
   $updatePasswordRoute,
   $emailVerificationRoute,
   $projectsRoute,
-  $projectDetailRoute,
   $myTasksRoute,
   $taskDetailRoute,
   $calendarRoute,
@@ -251,8 +250,16 @@ mixin $EmailVerificationRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
-RouteBase get $projectsRoute =>
-    GoRouteData.$route(path: '/projects', factory: $ProjectsRoute._fromState);
+RouteBase get $projectsRoute => GoRouteData.$route(
+  path: '/projects',
+  factory: $ProjectsRoute._fromState,
+  routes: [
+    GoRouteData.$route(
+      path: ':projectId',
+      factory: $ProjectDetailRoute._fromState,
+    ),
+  ],
+);
 
 mixin $ProjectsRoute on GoRouteData {
   static ProjectsRoute _fromState(GoRouterState state) => const ProjectsRoute();
@@ -273,11 +280,6 @@ mixin $ProjectsRoute on GoRouteData {
   @override
   void replace(BuildContext context) => context.replace(location);
 }
-
-RouteBase get $projectDetailRoute => GoRouteData.$route(
-  path: '/projects/:projectId',
-  factory: $ProjectDetailRoute._fromState,
-);
 
 mixin $ProjectDetailRoute on GoRouteData {
   static ProjectDetailRoute _fromState(GoRouterState state) =>

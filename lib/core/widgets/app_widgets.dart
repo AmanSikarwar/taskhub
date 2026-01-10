@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:go_router/go_router.dart';
 
 import '../theme/app_theme.dart';
 import 'animated_list_item.dart';
@@ -31,7 +32,7 @@ class AppPageHeader extends StatelessWidget {
         children: [
           if (showBackButton) ...[
             FTappable(
-              onPress: onBack ?? () => Navigator.of(context).pop(),
+              onPress: onBack ?? () => context.pop(),
               child: Container(
                 width: 40,
                 height: 40,

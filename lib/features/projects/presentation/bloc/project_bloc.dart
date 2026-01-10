@@ -17,6 +17,8 @@ part 'project_state.dart';
 class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
   final ProjectRepository _projectRepository;
   StreamSubscription<List<ProjectWithRole>>? _projectsSubscription;
+  Project? _cachedProject;
+  Project? get cachedProject => _cachedProject;
 
   ProjectBloc(this._projectRepository) : super(const ProjectState.initial()) {
     on<LoadProjects>(_onLoadProjects);
@@ -59,6 +61,7 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
     if (result.failure != null) {
       emit(.error(result.failure!));
     } else if (result.project != null) {
+      _cachedProject = result.project;
       emit(.projectLoaded(result.project!));
     }
   }
@@ -115,6 +118,7 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
     if (result.failure != null) {
       emit(.error(result.failure!));
     } else if (result.project != null) {
+      _cachedProject = result.project;
       emit(.projectUpdated(result.project!));
     }
   }

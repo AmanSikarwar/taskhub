@@ -301,7 +301,7 @@ class TaskRepositoryImpl implements TaskRepository {
       () => _supabase
           .from('tasks')
           .stream(primaryKey: ['id'])
-          .eq('assigned_to', userId)
+          .eq('created_by', userId)
           .asyncMap((_) async {
             final result = await getMyTasks();
             if (result.failure != null) {
